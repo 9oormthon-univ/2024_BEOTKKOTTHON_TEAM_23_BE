@@ -46,19 +46,12 @@ public class AuthController {
             HttpServletRequest request,
             HttpServletResponse response,
             @UserId Long userId) {
-        String refreshToken = StringUtils.startsWith(request.getHeader("User-Agent"), "Dart") ?
-                HeaderUtil.refineHeader(request, Constants.AUTHORIZATION_HEADER, Constants.BEARER_PREFIX)
-                        .orElseThrow(() -> new CommonException(ErrorCode.MISSING_REQUEST_HEADER))
-                : CookieUtil.refineCookie(request, "refresh_token")
-                        .orElseThrow(() -> new CommonException(ErrorCode.MISSING_REQUEST_HEADER));
+        String refreshToken = HeaderUtil.refineHeader(request, Constants.AUTHORIZATION_HEADER, Constants.BEARER_PREFIX)
+                .orElseThrow(() -> new CommonException(ErrorCode.MISSING_REQUEST_HEADER));
 
         JwtTokenDto jwtTokenDto = authService.reissue(userId, refreshToken);
 
-        if (request.getHeader("User-Agent") != null) {
-            CookieUtil.addSecureCookie(response, "refresh_token", jwtTokenDto.refreshToken(), 60 * 60 * 24 * 14);
-            jwtTokenDto = JwtTokenDto.of(jwtTokenDto.accessToken(), null);
-        }
-
         return ResponseDto.ok(jwtTokenDto);
     }
+
 }

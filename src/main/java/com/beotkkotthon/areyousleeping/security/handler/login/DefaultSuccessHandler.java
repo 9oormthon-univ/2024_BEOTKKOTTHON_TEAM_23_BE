@@ -35,13 +35,8 @@ public class DefaultSuccessHandler implements AuthenticationSuccessHandler {
         JwtTokenDto tokenDto = jwtUtil.generateTokens(userPrincipal.getUserId(), userPrincipal.getRole());
         userRepository.updateRefreshTokenAndLoginStatus(userPrincipal.getUserId(), tokenDto.refreshToken(), true);
 
-        String userAgent = request.getHeader("User-Agent");
+        setSuccessAppResponse(response, tokenDto);
 
-        if (StringUtils.startsWith(userAgent, "Dart")) {
-            setSuccessAppResponse(response, tokenDto);
-        } else {
-            setSuccessWebResponse(response, tokenDto);
-        }
     }
 
     private void setSuccessAppResponse(HttpServletResponse response, JwtTokenDto tokenDto) throws IOException {
@@ -59,10 +54,5 @@ public class DefaultSuccessHandler implements AuthenticationSuccessHandler {
         result.put("error", null);
 
         response.getWriter().write(JSONValue.toJSONString(result));
-    }
-
-    private void setSuccessWebResponse(HttpServletResponse response, JwtTokenDto tokenDto) throws IOException {
-        CookieUtil.addCookie(response, "access_token", tokenDto.accessToken());
-        CookieUtil.addSecureCookie(response, "refresh_token", tokenDto.refreshToken(), jwtUtil.getRefreshExpiration());
     }
 }

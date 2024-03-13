@@ -32,8 +32,8 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("StepStory API")
-                        .description("StepStory API Docs")
+                        .title("AreYouSleeping API")
+                        .description("AreYouSleeping API Docs")
                         .version(VERSION))
                 .components(new Components()
                         .addSecuritySchemes(JWT_SCHEMA_NAME,
