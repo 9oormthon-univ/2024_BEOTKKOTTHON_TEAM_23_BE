@@ -1,6 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,macos,windows,intellij+all,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,macos,windows,intellij+all,java
 
+### ignore application.yml ###
+src/main/resources/application.yml
+.gradle/*
+
 ### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
