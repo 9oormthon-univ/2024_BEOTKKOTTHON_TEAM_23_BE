@@ -27,13 +27,6 @@ public class CustomLogoutResultHandler implements LogoutSuccessHandler {
             setFailureResponse(response);
             return;
         }
-
-        String userAgent = request.getHeader("User-Agent");
-        if (userAgent != null) {
-            CookieUtil.deleteCookie(request, response, "access_token");
-            CookieUtil.deleteCookie(request, response, "refresh_token");
-        }
-
         setSuccessResponse(response);
     }
 
