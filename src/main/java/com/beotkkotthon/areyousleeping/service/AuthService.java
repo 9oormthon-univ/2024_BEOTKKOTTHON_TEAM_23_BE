@@ -34,10 +34,10 @@ public class AuthService {
     }
     @Transactional
     public JwtTokenDto reissue(Long userId, String refreshToken) {
-        User user = userRepository.findByUserIdAndRefreshTokenAndIsLogin(userId, refreshToken, true)
+        User user = userRepository.findByIdAndRefreshTokenAndIsLogin(userId, refreshToken, true)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_LOGIN_USER));
 
-        JwtTokenDto jwtTokenDto = jwtUtil.generateTokens(user.getUserId(), user.getRole());
+        JwtTokenDto jwtTokenDto = jwtUtil.generateTokens(user.getId(), user.getRole());
         user.updateRefreshToken(jwtTokenDto.refreshToken());
 
         return jwtTokenDto;
