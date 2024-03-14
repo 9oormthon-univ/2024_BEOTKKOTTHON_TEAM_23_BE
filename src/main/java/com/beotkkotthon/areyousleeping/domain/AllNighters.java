@@ -18,7 +18,7 @@ public class AllNighters {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "all_nighters_id")
-    private Long allNightersId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_team_id", nullable = false)

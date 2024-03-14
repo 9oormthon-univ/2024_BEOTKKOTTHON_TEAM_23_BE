@@ -11,7 +11,7 @@ import lombok.Builder;
 public record UserDetailDto(
         @Schema(description = "유저 ID", example = "1")
         @NotNull(message = "유저 ID가 없습니다.")
-        Long userId,
+        Long id,
 
         @Schema(description = "닉네임", example = "개똥이")
         @NotNull(message = "닉네임이 없습니다.")
@@ -27,7 +27,7 @@ public record UserDetailDto(
 ) {
         public static UserDetailDto fromEntity(User user) {
             return UserDetailDto.builder()
-                    .userId(user.getUserId())
+                    .id(user.getId())
                     .nickname(user.getNickname())
                     .provider(user.getProvider())
                     .profileImageUrl(user.getProfileImageUrl())

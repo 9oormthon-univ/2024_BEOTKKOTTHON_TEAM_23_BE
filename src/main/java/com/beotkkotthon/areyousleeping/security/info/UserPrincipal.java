@@ -25,7 +25,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
     private final Collection<? extends GrantedAuthority> authorities;
     public static UserPrincipal create(UserRepository.UserSecurityForm securityForm){
         return UserPrincipal.builder()
-                .userId(securityForm.getUserId())
+                .userId(securityForm.getId())
                 .password(securityForm.getPassword())
                 .role(securityForm.getRole())
                 .attributes(Collections.emptyMap())
@@ -35,7 +35,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
 
     public static UserPrincipal create(UserRepository.UserSecurityForm securityForm, Map<String, Object> attributes){
         return UserPrincipal.builder()
-                .userId(securityForm.getUserId())
+                .userId(securityForm.getId())
                 .password(securityForm.getPassword())
                 .role(securityForm.getRole())
                 .attributes(attributes)
