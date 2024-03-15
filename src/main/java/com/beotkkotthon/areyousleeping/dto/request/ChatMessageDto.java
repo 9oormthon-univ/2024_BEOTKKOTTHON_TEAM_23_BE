@@ -1,23 +1,15 @@
-package com.beotkkotthon.areyousleeping.dto.response;
+package com.beotkkotthon.areyousleeping.dto.request;
 
 import com.beotkkotthon.areyousleeping.domain.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.OffsetDateTime;
 
 @Builder
 public record ChatMessageDto(
+        @JsonProperty("type")
         String type,
-        String nickname,
+        @JsonProperty("content")
         String content,
+        @JsonProperty("sendTime")
         String sendTime) {
-    public static ChatMessageDto fromEntity(String type, User user, String content, String sendTime) {
-        return ChatMessageDto.builder()
-                .type(type)
-                .nickname(user.getNickname())
-                .content(content)
-                .sendTime(sendTime)
-                .build();
-    }
 }
