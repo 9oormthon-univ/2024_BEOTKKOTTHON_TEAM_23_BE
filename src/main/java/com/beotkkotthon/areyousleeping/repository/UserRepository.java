@@ -15,10 +15,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByNickname(String nickname);
 
-    @Query("select u.id as userId, u.role as role, u.password as password from User u where u.serialId = :serialId")
+    @Query("select u.id as id, u.role as role, u.password as password from User u where u.serialId = :serialId")
     Optional<UserSecurityForm> findSecurityFormBySerialId(String serialId);
 
-    @Query("select u.id as userId, u.role as role, u.password as password from User u where u.id = :id and u.isLogin = true")
+    @Query("select u.id as id, u.role as role, u.password as password from User u where u.id = :id and u.isLogin = true")
     Optional<UserSecurityForm> findSecurityFormById(Long id);
 
     @Modifying(clearAutomatically = true)
