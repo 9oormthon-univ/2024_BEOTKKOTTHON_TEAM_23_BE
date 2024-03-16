@@ -33,10 +33,24 @@ public class UserService {
         String profileImageName = null;
         if (imgFile != null && !imgFile.isEmpty()) {
             profileImageName = imageUtil.uploadImageFile(imgFile, userId);
-            user.updateInfoWithImage(requestDto.nickname(), profileImageName);
         }
-        else{
-            user.updateInfo(requestDto.nickname());
+        String nickname = (requestDto != null) ? requestDto.nickname() : null;
+
+        // 이미지 파일과 닉네임이 모두 제공된 경우
+        if (profileImageName != null && nickname != null) {
+            user.updateInfo(nickname, profileImageName);
+        }
+        // 닉네임만 제공된 경우
+        else if (nickname != null) {
+            user.updateInfoOnlyNickname(nickname);
+        }
+        // 이미지 파일만 제공된 경우
+        else if (profileImageName != null) {
+            user.updateInfoOnlyImage(profileImageName);
+        }
+        // 아무것도 제공되지 않은 경우
+        else {
+            throw new CommonException(ErrorCode.BAD_REQUEST_JSON);
         }
     }
 

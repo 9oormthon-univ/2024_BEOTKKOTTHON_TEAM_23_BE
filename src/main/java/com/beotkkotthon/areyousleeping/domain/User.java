@@ -78,13 +78,19 @@ public class User {
         this.refreshToken = refreshToken;
     }
 
-    public void updateInfo(String nickname) {
+    public void updateInfoOnlyNickname(String nickname) {
         if (nickname != null && (!Objects.equals(this.nickname, nickname))) {
             this.nickname = nickname;
         }
     }
 
-    public void updateInfoWithImage (String nickname, String profileImageName) {
+    public void updateInfoOnlyImage(String profileImageName) {
+        if (profileImageName != null && (!Objects.equals(this.profileImageUrl, profileImageName))) {
+            this.profileImageUrl = profileImageName;
+        }
+    }
+
+    public void updateInfo (String nickname, String profileImageName) {
         if (nickname != null && (!Objects.equals(this.nickname, nickname))) {
             this.nickname = nickname;
         }

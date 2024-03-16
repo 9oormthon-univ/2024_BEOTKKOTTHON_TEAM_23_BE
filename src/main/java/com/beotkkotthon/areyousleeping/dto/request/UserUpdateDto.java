@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Size;
 public record UserUpdateDto(
         @Schema(description = "닉네임", example = "개똥이")
         @Size(min = 2, max = 10, message = "닉네임은 2~10자리로 입력해주세요.")
-        @NotNull(message = "닉네임은 null이 될 수 없습니다.")
         String nickname
 ) {
 }
