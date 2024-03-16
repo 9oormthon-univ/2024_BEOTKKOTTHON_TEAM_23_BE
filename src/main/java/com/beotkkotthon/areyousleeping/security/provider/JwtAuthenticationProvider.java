@@ -1,8 +1,8 @@
-package dont.forget.springsecurity.security.provider;
+package com.beotkkotthon.areyousleeping.security.provider;
 
-import dont.forget.springsecurity.security.info.JwtUserInfo;
-import dont.forget.springsecurity.security.info.UserPrincipal;
-import dont.forget.springsecurity.security.service.CustomUserDetailService;
+import com.beotkkotthon.areyousleeping.security.info.JwtUserInfo;
+import com.beotkkotthon.areyousleeping.security.info.UserPrincipal;
+import com.beotkkotthon.areyousleeping.security.service.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;

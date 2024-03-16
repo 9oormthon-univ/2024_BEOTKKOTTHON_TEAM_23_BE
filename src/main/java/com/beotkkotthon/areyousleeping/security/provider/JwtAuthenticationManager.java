@@ -1,4 +1,4 @@
-package dont.forget.springsecurity.security.provider;
+package com.beotkkotthon.areyousleeping.security.provider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
