@@ -11,5 +11,8 @@ public record ChatMessageDto(
         @JsonProperty("content")
         String content,
         @JsonProperty("sendTime")
-        String sendTime) {
+        String sendTime,
+        @JsonProperty("sender")
+        String sender)
+{
 }

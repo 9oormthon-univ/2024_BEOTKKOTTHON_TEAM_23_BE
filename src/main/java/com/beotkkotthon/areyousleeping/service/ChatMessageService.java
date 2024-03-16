@@ -28,10 +28,10 @@ public class ChatMessageService {
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public void sendChatMessage(String teamId, ChatMessageDto requestDto, Long userId) {
+    public void sendChatMessage(String teamId, ChatMessageDto requestDto) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+        User user = userRepository.findByNickname(requestDto.sender());
+
         OffsetDateTime parsedDate = OffsetDateTime.parse(requestDto.sendTime());
 
         Optional<ChatMessageList> chatMessageList = chatMessageListRepository.findById(teamId);
@@ -39,6 +39,7 @@ public class ChatMessageService {
             ChatMessageList chat = chatMessageList.get();
             chat.getMessages().add(
                     ChatMessage.builder()
+                            .type(requestDto.type())
                             .sender(user)
                             .content(requestDto.content())
                             .date(parsedDate)
@@ -57,17 +58,13 @@ public class ChatMessageService {
         messagingTemplate.convertAndSend("/subscribe/team/" + teamId, responseDto);
     }
 
-    public ChatMessageListDto getChatMessages(String teamId, OffsetDateTime date) {
+    public ChatMessageListDto getChatMessages(String teamId) {
 
         ChatMessageList chat = chatMessageListRepository.findById(teamId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM));
 
-        List<ChatMessage> sortedMessages = sortMessagesByDate(chat).stream()
-                .filter(msg -> msg.getDate().isAfter(date))
-                .collect(Collectors.toList());
-
         return ChatMessageListDto.builder()
-                .messageList(convertToMessageDTOList(sortedMessages))
+                .messageList(convertToMessageDTOList(chat.getMessages()))
                 .build();
     }
 

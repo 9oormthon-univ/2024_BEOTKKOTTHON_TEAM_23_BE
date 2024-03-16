@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
@@ -22,17 +23,14 @@ public class ChatController {
     @MessageMapping("/chat/message/{teamId}")
     public ResponseDto<?> sendMessage(
             @DestinationVariable String teamId,
-            @RequestBody ChatMessageDto chatMessageDto, // type, content, sendTime
-            @UserId Long userId) {
-        chatService.sendChatMessage(teamId, chatMessageDto, userId);
+            @Payload ChatMessageDto chatMessageDto) {
+        chatService.sendChatMessage(teamId, chatMessageDto);
         return ResponseDto.created(null);
     }
 
     @GetMapping("/api/v1/chats/{teamId}/chat")
-    public ResponseDto<?> showBarMessages(@PathVariable String teamId,
-                                              @RequestParam
-                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime date){
+    public ResponseDto<?> showBarMessages(@PathVariable String teamId){
 
-        return ResponseDto.ok(chatService.getChatMessages(teamId, date));
+        return ResponseDto.ok(chatService.getChatMessages(teamId));
     }
 }

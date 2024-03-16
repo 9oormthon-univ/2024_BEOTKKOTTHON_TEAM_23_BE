@@ -19,7 +19,7 @@ public class ChatMessage {
     private OffsetDateTime date;
 
     @Builder
-    public ChatMessage(String type, User sender, String content, OffsetDateTime date) {
+    public ChatMessage(String type, User sender, String content, @DateTimeFormat OffsetDateTime date) {
         this.type = type;
         this.sender = sender;
         this.content = content;
