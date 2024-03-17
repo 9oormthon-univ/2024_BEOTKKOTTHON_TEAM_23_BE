@@ -12,6 +12,7 @@ import com.beotkkotthon.areyousleeping.security.handler.login.Oauth2FailureHandl
 import com.beotkkotthon.areyousleeping.security.handler.login.Oauth2SuccessHandler;
 import com.beotkkotthon.areyousleeping.security.handler.logout.CustomLogoutProcessHandler;
 import com.beotkkotthon.areyousleeping.security.handler.logout.CustomLogoutResultHandler;
+import com.beotkkotthon.areyousleeping.security.provider.JwtAuthenticationManager;
 import com.beotkkotthon.areyousleeping.security.service.CustomOauth2UserDetailService;
 import com.beotkkotthon.areyousleeping.security.service.CustomUserDetailService;
 import com.beotkkotthon.areyousleeping.utility.JwtUtil;
@@ -35,7 +36,7 @@ public class SecurityConfig {
     private final CustomLogoutResultHandler customSignOutResultHandler;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
-    private final CustomUserDetailService customUserDetailService;
+    private final JwtAuthenticationManager jwtAuthenticationManager;
     private final JwtUtil jwtUtil;
     private final Oauth2SuccessHandler oauth2SuccessHandler;
     private final Oauth2FailureHandler oauth2FailureHandler;
@@ -85,7 +86,7 @@ public class SecurityConfig {
                 )
 
                 .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtUtil, customUserDetailService),
+                        new JwtAuthenticationFilter(jwtUtil, jwtAuthenticationManager),
                         LogoutFilter.class)
                 .addFilterBefore(
                         new JwtExceptionFilter(),
