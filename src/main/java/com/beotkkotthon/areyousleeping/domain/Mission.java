@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,6 +22,9 @@ public class Mission {
     @JoinColumn(name = "user_team_id", nullable = false)
     private UserTeam userTeam;
 
+    @Column(name = "content", nullable = false)
+    private String content;
+
     @Column(name = "issued_at", nullable = false)
     private LocalDateTime issuedAt;
 
@@ -36,21 +38,36 @@ public class Mission {
     private String resultText = null;
 
     @Builder
-    private Mission(UserTeam userTeam) {
+    private Mission(UserTeam userTeam, String content, LocalDateTime issuedAt, Boolean result, String resultImageUrl, String resultText) {
         this.userTeam = userTeam;
-        this.issuedAt = LocalDateTime.now();
+        this.content = content;
+        this.issuedAt = issuedAt;
+        this.result = result;
+        this.resultImageUrl = resultImageUrl;
+        this.resultText = resultText;
     }
 
-    public void updateFail(Boolean result) {
-        this.result = result;
+    public static Mission fromMissionChat(String missionContent, UserTeam userTeam) {
+        return Mission.builder()
+                .userTeam(userTeam)
+                .content(missionContent)
+                .issuedAt(LocalDateTime.now())
+                .result(null)
+                .resultImageUrl(null)
+                .resultText(null)
+                .build();
     }
-    public void updateSuccessByImage(Boolean result, String resultImageUrl) {
-        this.result = result;
+
+    public void updateFail() {
+        this.result = false;
+    }
+    public void updateSuccessByImage(String resultImageUrl) {
+        this.result = true;
         this.resultImageUrl = resultImageUrl;
     }
 
-    public void updateSuccessByText(Boolean result, String resultText) {
-        this.result = result;
+    public void updateSuccessByText(String resultText) {
+        this.result = true;
         this.resultText = resultText;
     }
 }
