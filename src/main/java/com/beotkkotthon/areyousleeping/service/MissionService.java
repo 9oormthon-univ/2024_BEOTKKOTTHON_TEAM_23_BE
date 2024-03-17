@@ -1,6 +1,7 @@
 package com.beotkkotthon.areyousleeping.service;
 
 import com.beotkkotthon.areyousleeping.domain.Mission;
+import com.beotkkotthon.areyousleeping.domain.User;
 import com.beotkkotthon.areyousleeping.domain.UserTeam;
 import com.beotkkotthon.areyousleeping.domain.nosql.ChatMessage;
 import com.beotkkotthon.areyousleeping.domain.nosql.ChatMessageList;
@@ -27,7 +28,6 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,12 +76,25 @@ public class MissionService {
         }
     }
 
-    public List<MissionDto> getMissionTimeline(Long userId, Long teamId) {
-        UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
-        return missionRepository.findAllByUserTeamIdOrderByIssuedAtAsc(userTeam.getId())
-                .stream()
-                .map(MissionDto::fromEntity)
-                .collect(Collectors.toList());
+    public List<MissionDto> getMissionTimeline(Long teamId) {
+        List<Long> userIds = userTeamRepository.findAllByTeamId(teamId).stream()
+                .map(UserTeam::getUser)
+                .map(User::getId)
+                .toList();
+
+        List<MissionDto> missionDtos = new ArrayList<>();
+        for (Long userId : userIds) {
+            UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
+            if (userTeam != null) {
+                List<MissionDto> missionsForUserTeam = missionRepository.findAllByUserTeamIdOrderByIssuedAtAsc(userTeam.getId())
+                        .stream()
+                        .map(MissionDto::fromEntity)
+                        .toList();
+                missionDtos.addAll(missionsForUserTeam);
+            }
+        }
+
+        return missionDtos;
     }
     @Transactional
     public void sendMission() {

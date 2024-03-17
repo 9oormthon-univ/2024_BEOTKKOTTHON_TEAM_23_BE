@@ -40,10 +40,9 @@ public class MissionController {
 
     @GetMapping("/api/v1/user-team/{teamId}/mission")
     public ResponseDto<?> getMissionTimeline(
-            @UserId Long userId,
             @PathVariable Long teamId
     ){
-        return ResponseDto.ok(missionService.getMissionTimeline(userId, teamId));
+        return ResponseDto.ok(missionService.getMissionTimeline(teamId));
     }
 
 }
