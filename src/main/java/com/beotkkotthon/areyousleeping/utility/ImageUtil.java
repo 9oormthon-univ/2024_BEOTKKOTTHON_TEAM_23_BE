@@ -50,8 +50,7 @@ public class ImageUtil {
         return uuid + ".png";
     }
 
-
-    public String uploadImageFile(MultipartFile file, Long userId) {
+    public String uploadProfileImageFile(MultipartFile file, Long userId) {
         final String contentType = file.getContentType();
         assert contentType != null;
         String type = "." + contentType.substring(contentType.indexOf("/") + 1);
@@ -62,6 +61,27 @@ public class ImageUtil {
 
         String uuid = UUID.randomUUID().toString();
         String fileName = "user_" + userId + "/" + uuid + type;
+
+        try {
+            amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), null);
+        } catch (IOException e) {
+            throw new CommonException(ErrorCode.UPLOAD_FILE_ERROR);
+        }
+
+        return bucketUrl + fileName;
+    }
+
+    public String uploadMissionImageFile(MultipartFile file, Long userId, Long teamId) {
+        final String contentType = file.getContentType();
+        assert contentType != null;
+        String type = "." + contentType.substring(contentType.indexOf("/") + 1);
+
+        if (!contentType.startsWith(IMAGE_CONTENT_PREFIX)) {
+            throw new CommonException(ErrorCode.MISSING_REQUEST_PARAMETER);
+        }
+
+        String uuid = UUID.randomUUID().toString();
+        String fileName = "user_" + userId + "team_" + teamId + "/" + uuid + type;
 
         try {
             amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), null);
