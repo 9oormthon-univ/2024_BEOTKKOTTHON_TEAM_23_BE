@@ -30,6 +30,9 @@ public class UserTeam {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = false;
 
+    @Column(name = "is_leader", nullable = false)
+    private Boolean isLeader = false;
+
     @Column(name = "last_active_at", nullable = true)
     private LocalDateTime lastActiveAt = null;
 
@@ -41,6 +44,7 @@ public class UserTeam {
         this.user = user;
         this.team = team;
         this.isActive = false;
+        this.isLeader = false;
         this.lastActiveAt = null;
         this.createdAt = LocalDateTime.now();
     }
@@ -49,6 +53,7 @@ public class UserTeam {
         this.isActive = isActive;
         this.lastActiveAt = LocalDateTime.now(); // 현재 경과한 시간 표현할 때 사용
     }
+
     public void updateByEnd(Boolean isActive) {
         this.isActive = isActive;
     }
