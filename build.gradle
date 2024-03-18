@@ -27,6 +27,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.3.2'
+    runtimeOnly 'com.h2database:h2'
 
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
