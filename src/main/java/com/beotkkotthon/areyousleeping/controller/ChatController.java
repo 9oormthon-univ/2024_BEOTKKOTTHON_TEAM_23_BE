@@ -1,18 +1,13 @@
 package com.beotkkotthon.areyousleeping.controller;
 
-import com.beotkkotthon.areyousleeping.annotation.UserId;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
 import com.beotkkotthon.areyousleeping.dto.request.ChatMessageDto;
-import com.beotkkotthon.areyousleeping.dto.response.ChatMessageListDto;
 import com.beotkkotthon.areyousleeping.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.OffsetDateTime;
 
 @RestController
 @RequiredArgsConstructor

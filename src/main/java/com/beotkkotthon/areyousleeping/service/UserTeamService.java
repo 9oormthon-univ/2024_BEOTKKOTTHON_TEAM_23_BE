@@ -18,7 +18,8 @@ public class UserTeamService {
     private final TeamRepository teamRepository;
     private final UserTeamRepository userTeamRepository;
 
-    public void joinTeam(Long teamId, Long userId){
+    // 밤샘 참여하기 버튼을 누른 사용자를 팀에 추가하는 메소드
+    public UserTeam joinTeam(Long teamId, Long userId){
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
@@ -36,8 +37,12 @@ public class UserTeamService {
         UserTeam userTeam = UserTeam.builder()
                 .user(user)
                 .team(team)
-                .isActive(false) // 팀에 가입하면 활성 상태로 설정
-                .isLeader(false) // 기본적으로는 리더가 아님
                 .build();
+
+        return userTeam;
+    }
+
+    public void updateActiveStatus(Long teamId, boolean isActive){
+
     }
 }

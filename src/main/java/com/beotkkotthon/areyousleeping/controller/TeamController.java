@@ -29,9 +29,4 @@ public class TeamController {
         return ResponseDto.ok(teamResponseDto);
     }
 
-    // 유저를 팀에 가입
-//    @PostMapping("/{teamId}")
-//    public ResponseDto<String> addUserToTeam(@PathVariable Long userId, @PathVariable Long teamId){
-//        TeamService.addUserToTeam(userId, teamId);
-//    }
 }

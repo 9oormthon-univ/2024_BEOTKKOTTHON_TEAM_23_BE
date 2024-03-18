@@ -32,7 +32,7 @@ public class UserService {
 
         String profileImageName = null;
         if (imgFile != null && !imgFile.isEmpty()) {
-            profileImageName = imageUtil.uploadImageFile(imgFile, userId);
+            profileImageName = imageUtil.uploadProfileImageFile(imgFile, userId);
         }
         String nickname = (requestDto != null) ? requestDto.nickname() : null;
 
