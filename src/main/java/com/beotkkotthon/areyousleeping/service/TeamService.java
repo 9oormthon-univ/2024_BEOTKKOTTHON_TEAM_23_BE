@@ -25,6 +25,7 @@ public class TeamService {
 
         // Team 엔티티 생성 -> 저장
         Team team = teamSaveDto.toEntity();
+        team.addMember(); // 팀 생성 시 현재 인원수를 1로 설정
         team = teamRepository.save(team);
 
         // User 조회
@@ -46,4 +47,6 @@ public class TeamService {
 
         return team;
     }
+
+
 }

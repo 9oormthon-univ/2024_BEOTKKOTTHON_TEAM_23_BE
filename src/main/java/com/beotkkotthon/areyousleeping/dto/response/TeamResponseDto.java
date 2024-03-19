@@ -18,6 +18,7 @@ public class TeamResponseDto {
     private Long id;
     private String title;
     private int maxNum;
+    private int currentNum;
     private int targetTime;
     private boolean isSecret;
     private String password;
@@ -30,6 +31,7 @@ public class TeamResponseDto {
         this.id = team.getId();
         this.title = team.getTitle();
         this.maxNum = team.getMaxNum();
+        this.currentNum = team.getCurrentNum();
         this.targetTime = team.getTargetTime();
         this.isSecret = team.getIsSecret();
         this.password = team.getPassword();

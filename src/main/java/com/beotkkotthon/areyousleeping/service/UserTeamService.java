@@ -33,6 +33,11 @@ public class UserTeamService {
             throw new IllegalStateException("유저가 이미 팀에 속해있습니다.");
         }
 
+        // 팀의 현재 인원이 최대 인원을 초과하는지 확인
+        if(team.getCurrentNum() >= team.getMaxNum()){
+            throw new IllegalStateException("팀의 모집 인원을 초과하여 팀에 참여할 수 없습니다.");
+        }
+
         // UserTeam 객체 생성 및 저장
         UserTeam userTeam = UserTeam.builder()
                 .user(user)
@@ -40,6 +45,10 @@ public class UserTeamService {
                 .isLeader(false)
                 .build();
         userTeam = userTeamRepository.save(userTeam);
+
+        // 팀의 현재 인원 수를 1 증가시키고 저장
+        team.addMember();
+        teamRepository.save(team);
 
         return userTeam;
     }
