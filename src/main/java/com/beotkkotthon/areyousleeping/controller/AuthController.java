@@ -45,7 +45,7 @@ public class AuthController {
     }
 
     @PostMapping("/oauth/login")
-    @Operation(summary = "로그인", description = "로그인")
+    @Operation(summary = "소셜로그인", description = "클라이언트 사이드 인증을 통한 소셜 로그인")
     @Schema(name = "login", description = "로그인")
     public ResponseDto<?> login(@RequestBody OauthLoginDto userloginDto) {
         return ResponseDto.ok(authService.login(userloginDto));
