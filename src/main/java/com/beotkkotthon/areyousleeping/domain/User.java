@@ -108,4 +108,11 @@ public class User {
                 .role(ERole.USER)
                 .build();
     }
+    public static User signUp(String serialId, EProvider provider) {
+        return User.builder()
+                .serialId(serialId)
+                .provider(provider)
+                .role(ERole.USER)
+                .build();
+    }
 }

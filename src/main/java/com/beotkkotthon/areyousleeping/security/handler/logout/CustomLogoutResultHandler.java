@@ -2,7 +2,6 @@ package com.beotkkotthon.areyousleeping.security.handler.logout;
 
 import com.beotkkotthon.areyousleeping.dto.global.ExceptionDto;
 import com.beotkkotthon.areyousleeping.exception.ErrorCode;
-import com.beotkkotthon.areyousleeping.utility.CookieUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
