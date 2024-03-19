@@ -25,7 +25,7 @@ public class UserTeamService {
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
 
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException("Team not found"));
+                .orElseThrow(() -> new EntityNotFoundException("해당 팀을 찾을 수 없습니다."));
 
         // 사용자가 이미 팀에 속해있는지 확인
         boolean isAlreadyJoined = userTeamRepository.existsByUserAndTeam(user, team);
@@ -37,12 +37,24 @@ public class UserTeamService {
         UserTeam userTeam = UserTeam.builder()
                 .user(user)
                 .team(team)
+                .isLeader(false)
                 .build();
+        userTeam = userTeamRepository.save(userTeam);
 
         return userTeam;
     }
 
-    public void updateActiveStatus(Long teamId, boolean isActive){
+    public UserTeam updateUserActiveStatus(Long teamId, Long userId, boolean isActive){
 
+        UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
+
+        if (isActive) {
+            userTeam.updateByStart(isActive); // 활동 시작 시 호출
+        } else {
+            userTeam.updateByEnd(isActive); // 활동 종료 시 호출
+        }
+        userTeamRepository.save(userTeam);
+
+        return userTeam;
     }
 }
