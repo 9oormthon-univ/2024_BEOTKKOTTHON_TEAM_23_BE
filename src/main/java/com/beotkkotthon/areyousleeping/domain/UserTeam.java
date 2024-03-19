@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,6 +29,9 @@ public class UserTeam {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = false;
 
+    @Column(name = "is_leader", nullable = false)
+    private Boolean isLeader = false;
+
     @Column(name = "last_active_at", nullable = true)
     private LocalDateTime lastActiveAt = null;
 
@@ -37,10 +39,11 @@ public class UserTeam {
     private LocalDateTime createdAt;
 
     @Builder
-    private UserTeam(User user, Team team) {
+    private UserTeam(User user, Team team, Boolean isLeader) {
         this.user = user;
         this.team = team;
         this.isActive = false;
+        this.isLeader = isLeader;
         this.lastActiveAt = null;
         this.createdAt = LocalDateTime.now();
     }
@@ -49,6 +52,7 @@ public class UserTeam {
         this.isActive = isActive;
         this.lastActiveAt = LocalDateTime.now(); // 현재 경과한 시간 표현할 때 사용
     }
+
     public void updateByEnd(Boolean isActive) {
         this.isActive = isActive;
     }

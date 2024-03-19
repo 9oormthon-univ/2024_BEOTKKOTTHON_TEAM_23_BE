@@ -1,9 +1,11 @@
 package com.beotkkotthon.areyousleeping.service;
 
 import com.beotkkotthon.areyousleeping.domain.Team;
+import com.beotkkotthon.areyousleeping.domain.User;
 import com.beotkkotthon.areyousleeping.domain.UserTeam;
 import com.beotkkotthon.areyousleeping.domain.nosql.ChatMessageList;
-import com.beotkkotthon.areyousleeping.dto.request.TeamCreateRequestDto;
+
+import com.beotkkotthon.areyousleeping.dto.request.TeamSaveDto;
 import com.beotkkotthon.areyousleeping.repository.ChatMessageListRepository;
 import com.beotkkotthon.areyousleeping.repository.TeamRepository;
 import com.beotkkotthon.areyousleeping.repository.UserRepository;
@@ -19,21 +21,22 @@ public class TeamService {
     private final UserRepository userRepository;
     private final ChatMessageListRepository chatMessageListRepository;
 
-    public Team createTeam(Long userId, TeamCreateRequestDto requestDto) {
-        Team team = Team.builder()
-                .title(requestDto.title())
-                .maxNum(requestDto.maxNum())
-                .targetTime(requestDto.targetTime())
-                .isSecret(requestDto.isSecret())
-                .password(requestDto.password())
-                .category(requestDto.category())
-                .description(requestDto.description())
-                .build();
-        teamRepository.save(team);
+    public Team createTeam(Long userId, TeamSaveDto teamSaveDto) {
 
+        // Team 엔티티 생성 -> 저장
+        Team team = teamSaveDto.toEntity();
+        team.addMember(); // 팀 생성 시 현재 인원수를 1로 설정
+        team = teamRepository.save(team);
+
+        // User 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
+
+        // UserTeam 인스턴스 생성 및 연관관계 설정, 방 생성 시 방장으로 설정
         UserTeam userTeam = UserTeam.builder()
-                .user(userRepository.findById(userId).get())
+                .user(user)
                 .team(team)
+                .isLeader(true)
                 .build();
         userTeamRepository.save(userTeam);
 
@@ -41,6 +44,9 @@ public class TeamService {
                         .id(team.getId().toString())
                                 .build();
         chatMessageListRepository.save(chatMessageList);
+
         return team;
     }
+
+
 }

@@ -1,6 +1,7 @@
 package com.beotkkotthon.areyousleeping.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Schema(name = "UserUpdateDto", description = "유저 정보 수정 요청")
