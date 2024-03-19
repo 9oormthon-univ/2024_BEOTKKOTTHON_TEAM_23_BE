@@ -13,8 +13,7 @@ public class Constants {
     public static String AUTHORIZATION_HEADER = "Authorization";
 
     public static List<String> NO_NEED_AUTH_URLS = List.of(
-            "/api/v1/no-auth/**",
-            "api/v1/oauth/login",
+            "/api/v1/no-auth/**", "api/v1/oauth/login",
             "/api/v1/auth/sign-up",
             "/api/v1/auth/email-duplicate",
             "/api-docs.html",
