@@ -39,11 +39,11 @@ public class UserTeam {
     private LocalDateTime createdAt;
 
     @Builder
-    private UserTeam(User user, Team team) {
+    private UserTeam(User user, Team team, Boolean isLeader) {
         this.user = user;
         this.team = team;
         this.isActive = false;
-        this.isLeader = false;
+        this.isLeader = isLeader;
         this.lastActiveAt = null;
         this.createdAt = LocalDateTime.now();
     }
