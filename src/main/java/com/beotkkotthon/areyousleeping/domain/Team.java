@@ -24,7 +24,7 @@ public class Team {
     @Column(name = "max_num", nullable = false)
     private Integer maxNum;
 
-    @Column(name = "curruent_num", nullable = false)
+    @Column(name = "current_num", nullable = false)
     private Integer currentNum=0;
 
     @Column(name = "target_time", nullable = false)
@@ -41,7 +41,6 @@ public class Team {
 
     @Column(name = "description", nullable = true)
     private String description;
-
 
     @CreatedDate
     @Column(name = "created_at", nullable = false)
@@ -73,6 +72,18 @@ public class Team {
 
     // 멤버 추가 시 currentNum 증가 메서드
     public void addMember() {
+        if(this.currentNum==null){
+            this.currentNum=0;
+        }
         this.currentNum += 1;
+    }
+
+    // 멤버가 팀 나갈 때 currentNum 감소 메서드
+    public void decreaseCurrentNum() {
+        if (this.currentNum > 0) {
+            this.currentNum -= 1; // 현재 인원이 0보다 클 때만 감소
+        } else{
+            throw new IllegalStateException("팀 인원이 이미 0명입니다.");
+        }
     }
 }

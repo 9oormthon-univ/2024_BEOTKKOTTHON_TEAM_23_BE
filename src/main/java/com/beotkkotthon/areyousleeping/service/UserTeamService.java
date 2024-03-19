@@ -53,6 +53,28 @@ public class UserTeamService {
         return userTeam;
     }
 
+    public UserTeam leaveTeam(Long teamId, Long userId){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 팀을 찾을 수 없습니다."));
+
+        //UserTeam에서 유저를 제거
+        UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
+        if (userTeam == null) {
+            throw new IllegalArgumentException("해당 팀에 유저가 속해 있지 않습니다.");
+        }
+        userTeamRepository.delete(userTeam);
+
+        // team의 현재 인원수 감소
+        team.decreaseCurrentNum();
+        teamRepository.save(team);
+
+        return userTeam;
+    }
+
     public UserTeam updateUserActiveStatus(Long teamId, Long userId, boolean isActive){
 
         UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);

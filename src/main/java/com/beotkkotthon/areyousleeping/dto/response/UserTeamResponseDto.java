@@ -1,5 +1,6 @@
 package com.beotkkotthon.areyousleeping.dto.response;
 
+import com.beotkkotthon.areyousleeping.domain.Team;
 import com.beotkkotthon.areyousleeping.domain.UserTeam;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -19,6 +20,7 @@ public class UserTeamResponseDto {
     private Boolean isLeader;
     private LocalDateTime lastActiveAt;
     private LocalDateTime createdAt;
+    private int currentNum;
 
     @Builder
     public UserTeamResponseDto(UserTeam userTeam){
@@ -28,5 +30,6 @@ public class UserTeamResponseDto {
         this.isLeader = userTeam.getIsActive();
         this.lastActiveAt = userTeam.getLastActiveAt();
         this.createdAt=userTeam.getCreatedAt();
+        this.currentNum = userTeam.getTeam().getCurrentNum();
     }
 }
