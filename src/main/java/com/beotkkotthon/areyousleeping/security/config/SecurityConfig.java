@@ -4,17 +4,13 @@ import com.beotkkotthon.areyousleeping.constants.Constants;
 import com.beotkkotthon.areyousleeping.security.filter.GlobalLoggerFilter;
 import com.beotkkotthon.areyousleeping.security.filter.JwtAuthenticationFilter;
 import com.beotkkotthon.areyousleeping.security.filter.JwtExceptionFilter;
-import com.beotkkotthon.areyousleeping.security.handler.jwt.JwtAccessDeniedHandler;
-import com.beotkkotthon.areyousleeping.security.handler.jwt.JwtAuthEntryPoint;
+import com.beotkkotthon.areyousleeping.security.handler.exception.CustomAccessDeniedHandler;
+import com.beotkkotthon.areyousleeping.security.handler.exception.CustomAuthenticationEntryPointHandler;
 import com.beotkkotthon.areyousleeping.security.handler.login.DefaultFailureHandler;
 import com.beotkkotthon.areyousleeping.security.handler.login.DefaultSuccessHandler;
-import com.beotkkotthon.areyousleeping.security.handler.login.Oauth2FailureHandler;
-import com.beotkkotthon.areyousleeping.security.handler.login.Oauth2SuccessHandler;
 import com.beotkkotthon.areyousleeping.security.handler.logout.CustomLogoutProcessHandler;
 import com.beotkkotthon.areyousleeping.security.handler.logout.CustomLogoutResultHandler;
 import com.beotkkotthon.areyousleeping.security.provider.JwtAuthenticationManager;
-import com.beotkkotthon.areyousleeping.security.service.CustomOauth2UserDetailService;
-import com.beotkkotthon.areyousleeping.security.service.CustomUserDetailService;
 import com.beotkkotthon.areyousleeping.utility.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -34,13 +30,10 @@ public class SecurityConfig {
     private final DefaultFailureHandler defaultFailureHandler;
     private final CustomLogoutProcessHandler customSignOutProcessHandler;
     private final CustomLogoutResultHandler customSignOutResultHandler;
-    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final JwtAuthEntryPoint jwtAuthEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomAuthenticationEntryPointHandler customAuthenticationEntryPointHandler;
     private final JwtAuthenticationManager jwtAuthenticationManager;
     private final JwtUtil jwtUtil;
-    private final Oauth2SuccessHandler oauth2SuccessHandler;
-    private final Oauth2FailureHandler oauth2FailureHandler;
-    private final CustomOauth2UserDetailService customOauth2UserDetailService;
 
     @Bean
     protected SecurityFilterChain securityFilterChain(final HttpSecurity httpSecurity) throws Exception {
@@ -54,7 +47,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(registry ->
                         registry
                                 .requestMatchers(Constants.NO_NEED_AUTH_URLS.toArray(String[]::new)).permitAll()
-                                .requestMatchers(Constants.USER_URLS.toArray(String[]::new)).hasRole("USER")
                                 .anyRequest().authenticated()
                 )
 
@@ -67,22 +59,16 @@ public class SecurityConfig {
                                 .successHandler(defaultSuccessHandler)
                                 .failureHandler(defaultFailureHandler)
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .successHandler(oauth2SuccessHandler)
-                        .failureHandler(oauth2FailureHandler)
-                        .userInfoEndpoint(it -> it.userService(customOauth2UserDetailService))
-                )
                 .logout(configurer ->
                         configurer
                                 .logoutUrl("/api/v1/auth/logout")
                                 .addLogoutHandler(customSignOutProcessHandler)
                                 .logoutSuccessHandler(customSignOutResultHandler)
                 )
-
                 .exceptionHandling(configurer ->
                         configurer
-                                .authenticationEntryPoint(jwtAuthEntryPoint)
-                                .accessDeniedHandler(jwtAccessDeniedHandler)
+                                .accessDeniedHandler(customAccessDeniedHandler)
+                                .authenticationEntryPoint(customAuthenticationEntryPointHandler)
                 )
 
                 .addFilterBefore(

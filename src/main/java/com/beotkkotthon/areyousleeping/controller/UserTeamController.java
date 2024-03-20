@@ -3,9 +3,7 @@ package com.beotkkotthon.areyousleeping.controller;
 import com.beotkkotthon.areyousleeping.annotation.UserId;
 import com.beotkkotthon.areyousleeping.domain.UserTeam;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
-import com.beotkkotthon.areyousleeping.dto.response.UserActiveStatusResponseDto;
 import com.beotkkotthon.areyousleeping.dto.response.UserTeamResponseDto;
-import com.beotkkotthon.areyousleeping.dto.request.UserActiveStatusDto;
 import com.beotkkotthon.areyousleeping.service.UserTeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,16 +35,6 @@ public class UserTeamController {
         UserTeam userTeam = userTeamService.leaveTeam(teamId, userId);
 
         return ResponseDto.ok(null);
-    }
-
-    @PatchMapping("/{teamId}")
-    @Operation(summary = "밤샘 참여하기/ 밤샘 중단하기", description = "유저가 밤샘 참여하기 버튼을 눌러 밤샘 상태가 활성화되고, 밤샘 중단하기 버튼을 누르면 밤샘 상태가 비활성화됩니다.")
-    public ResponseDto<?> updateUserActiveStatus(@PathVariable Long teamId, @RequestBody UserActiveStatusDto request, @UserId Long userId){
-
-        UserTeam updatedUserTeam= userTeamService.updateUserActiveStatus(teamId, userId, request.isActive());
-        UserActiveStatusResponseDto responseDto = new UserActiveStatusResponseDto();
-
-        return ResponseDto.ok(responseDto);
     }
 
 }

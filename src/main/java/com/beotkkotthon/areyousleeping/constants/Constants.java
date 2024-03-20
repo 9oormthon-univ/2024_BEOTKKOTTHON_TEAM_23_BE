@@ -13,13 +13,9 @@ public class Constants {
     public static String AUTHORIZATION_HEADER = "Authorization";
 
     public static List<String> NO_NEED_AUTH_URLS = List.of(
-            "/api/v1/no-auth/**",
-            "/api/v1/oauth2/sign-up",
+            "/api/v1/no-auth/**", "api/v1/oauth/login",
             "/api/v1/auth/sign-up",
-            "/oauth2/authorization/kakao",
-            "/oauth2/authorization/google",
-            "/login/oauth2/code/kakao",
-            "/login/oauth2/code/google",
+            "/api/v1/auth/email-duplicate",
             "/api-docs.html",
             "/api-docs/**",
             "/swagger-resources/**",

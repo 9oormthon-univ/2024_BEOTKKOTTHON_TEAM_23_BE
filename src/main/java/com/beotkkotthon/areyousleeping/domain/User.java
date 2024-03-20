@@ -27,7 +27,7 @@ public class User {
     @Column(name = "serial_id", nullable = false, unique = true)
     private String serialId;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password", nullable = true)
     private String password;
 
     @Column(name = "provider", nullable = false)
@@ -42,7 +42,7 @@ public class User {
     private LocalDateTime createdAt;
 
     /* User Info */
-    @Column(name = "nickname", nullable = false)
+    @Column(name = "nickname", nullable = false, unique = true)
     private String nickname="default_nickname";
 
     @Column(name = "profile_image_url", nullable = false)
@@ -51,9 +51,6 @@ public class User {
     /* User Status */
     @Column(name = "is_login", columnDefinition = "TINYINT(1)")
     private Boolean isLogin;
-
-    @Column(name = "device_token")
-    private String deviceToken;
 
     @Column(name = "refresh_token")
     private String refreshToken;
@@ -105,6 +102,14 @@ public class User {
                 .serialId(authSignUpDto.serialId())
                 .password(encodedPassword)
                 .provider(EProvider.DEFAULT)
+                .role(ERole.USER)
+                .build();
+    }
+    public static User signUp(String serialId, EProvider provider) {
+        return User.builder()
+                .serialId(serialId)
+                .provider(provider)
+                .password(null)
                 .role(ERole.USER)
                 .build();
     }

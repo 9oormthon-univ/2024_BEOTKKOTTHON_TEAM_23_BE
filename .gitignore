@@ -2,7 +2,8 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,macos,windows,intellij+all,java
 
 ### ignore application.yml ###
-src/main/resources/application.yml
+src/main/resources/application-dev.yml
+src/main/resources/application-local.yml
 .gradle/*
 build/*
 
