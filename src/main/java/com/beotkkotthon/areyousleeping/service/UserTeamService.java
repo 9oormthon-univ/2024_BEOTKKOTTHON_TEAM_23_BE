@@ -99,4 +99,9 @@ public class UserTeamService {
         }
         return userTeam;
     }
+
+    @Transactional
+    public Long getActiveMembersCount(Long teamId){
+        return userTeamRepository.CountByTeamIdAndIsActiveTrue(teamId);
+    }
 }

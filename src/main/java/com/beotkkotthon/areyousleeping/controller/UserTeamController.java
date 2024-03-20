@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "UserTeam", description = "유저와 팀간의 관계에 대한 API")
-@RequestMapping("/api/v1/user-team")
+@RequestMapping("/api/v1/user-team/{teamId}")
 public class UserTeamController {
 
     private final UserTeamService userTeamService;
     private static final Logger logger = LoggerFactory.getLogger(UserTeamController.class);
 
-    @PostMapping("/{teamId}")
+    @PostMapping("")
     @Operation(summary = "팀 참여하기", description = "유저가 팀 참여하기 버튼을 눌러 팀에 참여합니다.")
     public ResponseDto<?> joinTeam(@PathVariable Long teamId, @UserId Long userId){
 
@@ -31,7 +31,7 @@ public class UserTeamController {
         return ResponseDto.ok(userTeamResponseDto);
     }
 
-    @DeleteMapping("/{teamId}")
+    @DeleteMapping("")
     @Operation(summary = "팀 나가기", description = "유저가 팀 나가기 버튼을 눌러 팀에서 나갑니다.")
     public ResponseDto<?> leaveTeam(@PathVariable Long teamId, @UserId Long userId){
 
@@ -40,13 +40,20 @@ public class UserTeamController {
         return ResponseDto.ok(null);
     }
 
-    @PatchMapping("/{teamId}")
+    @PatchMapping("")
     @Operation(summary = "밤샘 참여하기/ 밤샘 중단하기", description = "유저가 밤샘 시작하기 버튼을 눌러 밤샘이 활성화되고, 밤샘 그만하기 버튼을 누르면 밤샘이 비활성화됩니다.")
     public ResponseDto<?> updateUserActiveStatus(@PathVariable Long teamId, @RequestParam boolean isActive, @UserId Long userId){
 
         UserTeam updatedUserTeam= userTeamService.updateUserActiveStatus(teamId, userId, isActive);
 
         return ResponseDto.ok(updatedUserTeam.getIsActive());
+    }
+
+    @GetMapping("/all-night-count")
+    @Operation(summary = "밤샘중인 팀원 수 조회", description = "밤샘이 활성화되어 있는 팀원들의 숫자를 조회합니다")
+    public ResponseDto<?> getAllNightCounters(@PathVariable Long teamId){
+        Long count=userTeamService.getActiveMembersCount(teamId);
+        return ResponseDto.ok(count);
     }
 
 }
