@@ -125,7 +125,7 @@ public class UserTeamService {
         List<TeamMemberInfoDto> teamMembersInfo = new ArrayList<>();
         for (UserTeam userTeam : userTeams) {
             User user = userTeam.getUser();
-            Achievement latestachievement = achievementRepository.findTopByUserIdOrderByAcquiredDateDesc(user.getId());
+            Achievement latestachievement = achievementRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId());
 
             teamMembersInfo.add(TeamMemberInfoDto.builder()
                     .userTeam(userTeam)

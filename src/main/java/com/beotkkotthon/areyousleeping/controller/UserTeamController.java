@@ -27,10 +27,6 @@ import java.util.List;
 @RequestMapping("/api/v1/user-team/{teamId}")
 public class UserTeamController {
 
-    private final UserTeamRepository userTeamRepository;
-    private final TeamRepository teamRepository;
-    private final AchievementRepository achievementRepository;
-
     private final UserTeamService userTeamService;
     private static final Logger logger = LoggerFactory.getLogger(UserTeamController.class);
 

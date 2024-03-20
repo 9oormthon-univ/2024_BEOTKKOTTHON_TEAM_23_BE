@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface AchievementRepository extends JpaRepository<Achievement, Long> {
     List<Achievement> findByUserId(Long userId);
-
+    Achievement findTopByUserIdOrderByCreatedAtDesc(Long userId);
 }
