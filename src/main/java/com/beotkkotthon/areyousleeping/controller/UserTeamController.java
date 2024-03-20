@@ -1,9 +1,15 @@
 package com.beotkkotthon.areyousleeping.controller;
 
 import com.beotkkotthon.areyousleeping.annotation.UserId;
+import com.beotkkotthon.areyousleeping.domain.Achievement;
+import com.beotkkotthon.areyousleeping.domain.User;
 import com.beotkkotthon.areyousleeping.domain.UserTeam;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
+import com.beotkkotthon.areyousleeping.dto.response.TeamMemberInfoDto;
 import com.beotkkotthon.areyousleeping.dto.response.UserTeamResponseDto;
+import com.beotkkotthon.areyousleeping.repository.AchievementRepository;
+import com.beotkkotthon.areyousleeping.repository.TeamRepository;
+import com.beotkkotthon.areyousleeping.repository.UserTeamRepository;
 import com.beotkkotthon.areyousleeping.service.UserTeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,11 +18,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "UserTeam", description = "유저와 팀간의 관계에 대한 API")
 @RequestMapping("/api/v1/user-team/{teamId}")
 public class UserTeamController {
+
+    private final UserTeamRepository userTeamRepository;
+    private final TeamRepository teamRepository;
+    private final AchievementRepository achievementRepository;
 
     private final UserTeamService userTeamService;
     private static final Logger logger = LoggerFactory.getLogger(UserTeamController.class);
@@ -50,10 +63,19 @@ public class UserTeamController {
     }
 
     @GetMapping("/all-night-count")
-    @Operation(summary = "밤샘중인 팀원 수 조회", description = "밤샘이 활성화되어 있는 팀원들의 총 숫자를 조회합니다.")
+    @Operation(summary = "밤샘중인 팀원 수 조회", description = "팀 id를 받아 밤샘이 활성화되어 있는 팀원들의 총 숫자를 조회합니다.")
     public ResponseDto<?> getAllNightCounters(@PathVariable Long teamId){
         Long count=userTeamService.getActiveMembersCount(teamId);
         return ResponseDto.ok(count);
     }
 
+    @GetMapping("/mate")
+    @Operation(summary = "밤샘메이트 조회", description = "팀 id를 받아 팀원들의 이름, 칭호, 밤샘활성화 여부를 조회합니다.")
+    public ResponseDto<?> getTeamMembersInfo(@UserId Long userId, @PathVariable Long teamId){
+
+        // 해당 팀에 속한 모든 유저 조회
+        List<TeamMemberInfoDto> teamMembersInfo = userTeamService.getTeamMembersInfo(teamId);
+
+        return ResponseDto.ok(teamMembersInfo);
+    }
 }
