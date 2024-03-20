@@ -33,7 +33,7 @@ public class FollowingController {
                 .orElseThrow(() -> new EntityNotFoundException("id에 해당되는 유저를 찾을 수 없습니다. " + receiverId));
         boolean isFollowed = followingService.toggleFollow(sender, receiver);
 
-        String status = isFollowed ? "팔로우" : "언팔로우";
+        String status = isFollowed ? "팔로우 성공" : "언팔로우 성공";
         FollowingResponseDto followingResponseDto = FollowingResponseDto.builder()
                 .senderId(senderId)
                 .receiverId(receiverId)
