@@ -4,7 +4,6 @@ import com.beotkkotthon.areyousleeping.annotation.UserId;
 import com.beotkkotthon.areyousleeping.domain.UserTeam;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
 import com.beotkkotthon.areyousleeping.dto.response.UserTeamResponseDto;
-import com.beotkkotthon.areyousleeping.dto.request.UserActiveStatusDto;
 import com.beotkkotthon.areyousleeping.service.UserTeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,9 +43,7 @@ public class UserTeamController {
     @PatchMapping("/{teamId}")
     @Operation(summary = "밤샘 참여하기/ 밤샘 중단하기", description = "유저가 밤샘 시작하기 버튼을 눌러 밤샘이 활성화되고, 밤샘 그만하기 버튼을 누르면 밤샘이 비활성화됩니다.")
     public ResponseDto<?> updateUserActiveStatus(@PathVariable Long teamId, @RequestParam boolean isActive, @UserId Long userId){
-        // isActive 값 로깅
-        logger.info("밤샘 활성화 요청: {}, 팀 ID: {}, 유저 ID: {}", isActive, teamId, userId);
-        System.out.println("밤샘 활성화 요청: " + isActive);
+
         UserTeam updatedUserTeam= userTeamService.updateUserActiveStatus(teamId, userId, isActive);
 
         return ResponseDto.ok(updatedUserTeam.getIsActive());
