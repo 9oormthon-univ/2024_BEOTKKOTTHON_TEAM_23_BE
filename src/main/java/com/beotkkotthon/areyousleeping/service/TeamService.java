@@ -12,6 +12,7 @@ import com.beotkkotthon.areyousleeping.repository.UserRepository;
 import com.beotkkotthon.areyousleeping.repository.UserTeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class TeamService {
     private final UserRepository userRepository;
     private final ChatMessageListRepository chatMessageListRepository;
 
+    @Transactional
     public Team createTeam(Long userId, TeamSaveDto teamSaveDto) {
 
         // Team 엔티티 생성 -> 저장
