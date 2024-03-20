@@ -7,6 +7,7 @@ import com.beotkkotthon.areyousleeping.dto.request.TeamSaveDto;
 import com.beotkkotthon.areyousleeping.dto.response.TeamResponseDto;
 import com.beotkkotthon.areyousleeping.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@Tag(name="Team", description = "팀에 관한 컨트롤러")
 public class TeamController {
 
     private final TeamService teamService;
