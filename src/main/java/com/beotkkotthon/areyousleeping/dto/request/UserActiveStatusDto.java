@@ -1,15 +1,16 @@
 package com.beotkkotthon.areyousleeping.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Schema(description = "팀 생성 DTO")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class UserActiveStatusDto {
-    private boolean active;
+
+    @Schema(description = "밤샘 활성화 여부")
+    private boolean isActive;
+
 }
