@@ -32,16 +32,6 @@ public class UserPrincipal implements UserDetails, OAuth2User {
                 .authorities(Collections.singleton(new SimpleGrantedAuthority(securityForm.getRole().getSecurityName())))
                 .build();
     }
-
-    public static UserPrincipal create(UserRepository.UserSecurityForm securityForm, Map<String, Object> attributes){
-        return UserPrincipal.builder()
-                .userId(securityForm.getId())
-                .password(securityForm.getPassword())
-                .role(securityForm.getRole())
-                .attributes(attributes)
-                .authorities(Collections.singleton(new SimpleGrantedAuthority(securityForm.getRole().getSecurityName())))
-                .build();
-    }
     @Override
     public Map<String, Object> getAttributes() {
         return attributes;

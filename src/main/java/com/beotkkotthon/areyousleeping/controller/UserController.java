@@ -39,7 +39,7 @@ public class UserController {
         return ResponseDto.ok(null);
     }
 
-    @GetMapping("/check-duplicate")
+    @GetMapping("/nickname-duplicate")
     @Operation(summary = "닉네임 중복 확인", description = "닉네임 중복을 확인합니다.")
     public ResponseDto<?> checkDuplicate(
             @RequestParam(value = "nickname") String nickname
