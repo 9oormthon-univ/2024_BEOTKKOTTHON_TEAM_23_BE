@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -102,6 +103,10 @@ public class UserTeamService {
 
     @Transactional
     public Long getActiveMembersCount(Long teamId){
-        return userTeamRepository.CountByTeamIdAndIsActiveTrue(teamId);
+
+        if (!teamRepository.existsById(teamId)){
+            throw new NoSuchElementException("해당 팀을 조회할 수 없습니다. " + teamId);
+        }
+        return userTeamRepository.countByTeamIdAndIsActiveTrue(teamId);
     }
 }

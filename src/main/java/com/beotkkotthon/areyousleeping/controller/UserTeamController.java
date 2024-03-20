@@ -50,7 +50,7 @@ public class UserTeamController {
     }
 
     @GetMapping("/all-night-count")
-    @Operation(summary = "밤샘중인 팀원 수 조회", description = "밤샘이 활성화되어 있는 팀원들의 숫자를 조회합니다")
+    @Operation(summary = "밤샘중인 팀원 수 조회", description = "밤샘이 활성화되어 있는 팀원들의 총 숫자를 조회합니다.")
     public ResponseDto<?> getAllNightCounters(@PathVariable Long teamId){
         Long count=userTeamService.getActiveMembersCount(teamId);
         return ResponseDto.ok(count);
