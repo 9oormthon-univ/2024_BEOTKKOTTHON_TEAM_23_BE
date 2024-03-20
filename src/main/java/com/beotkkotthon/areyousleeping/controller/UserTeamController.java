@@ -8,6 +8,8 @@ import com.beotkkotthon.areyousleeping.service.UserTeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserTeamController {
 
     private final UserTeamService userTeamService;
+    private static final Logger logger = LoggerFactory.getLogger(UserTeamController.class);
 
     @PostMapping("/{teamId}")
     @Operation(summary = "팀 참여하기", description = "유저가 팀 참여하기 버튼을 눌러 팀에 참여합니다.")
@@ -35,6 +38,15 @@ public class UserTeamController {
         UserTeam userTeam = userTeamService.leaveTeam(teamId, userId);
 
         return ResponseDto.ok(null);
+    }
+
+    @PatchMapping("/{teamId}")
+    @Operation(summary = "밤샘 참여하기/ 밤샘 중단하기", description = "유저가 밤샘 시작하기 버튼을 눌러 밤샘이 활성화되고, 밤샘 그만하기 버튼을 누르면 밤샘이 비활성화됩니다.")
+    public ResponseDto<?> updateUserActiveStatus(@PathVariable Long teamId, @RequestParam boolean isActive, @UserId Long userId){
+
+        UserTeam updatedUserTeam= userTeamService.updateUserActiveStatus(teamId, userId, isActive);
+
+        return ResponseDto.ok(updatedUserTeam.getIsActive());
     }
 
 }

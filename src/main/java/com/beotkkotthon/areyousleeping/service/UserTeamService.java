@@ -9,6 +9,9 @@ import com.beotkkotthon.areyousleeping.repository.UserTeamRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ public class UserTeamService {
     private final UserTeamRepository userTeamRepository;
 
     // 밤샘 참여하기 버튼을 누른 사용자를 팀에 추가하는 메소드
+    @Transactional
     public UserTeam joinTeam(Long teamId, Long userId){
 
         User user = userRepository.findById(userId)
@@ -53,6 +57,7 @@ public class UserTeamService {
         return userTeam;
     }
 
+    @Transactional
     public UserTeam leaveTeam(Long teamId, Long userId){
 
         User user = userRepository.findById(userId)
@@ -75,17 +80,23 @@ public class UserTeamService {
         return userTeam;
     }
 
+    @Transactional
     public UserTeam updateUserActiveStatus(Long teamId, Long userId, boolean isActive){
 
         UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
-
-        if (isActive) {
-            userTeam.updateByStart(isActive); // 활동 시작 시 호출
-        } else {
-            userTeam.updateByEnd(isActive); // 활동 종료 시 호출
+        if (userTeam == null) {
+            throw new IllegalArgumentException("해당 팀에 유저가 속해 있지 않습니다.");
         }
-        userTeamRepository.save(userTeam);
 
+        // 현재 isActive가 true일 때 lastActiveAt을 현재 시간으로 업데이트
+        if (userTeam.getIsActive() != isActive) { // 현재 상태와 요청된 상태가 다를 경우에만 실행
+            if (isActive) {
+                userTeam.updateByStart(isActive); // 밤샘 시작
+            } else {
+                userTeam.updateByEnd(isActive); // 밤샘 종료
+            }
+            userTeamRepository.save(userTeam);
+        }
         return userTeam;
     }
 }
