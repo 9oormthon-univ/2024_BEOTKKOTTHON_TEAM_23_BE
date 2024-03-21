@@ -42,7 +42,7 @@ public class User {
     private LocalDateTime createdAt;
 
     /* User Info */
-    @Column(name = "nickname", nullable = false, unique = true)
+    @Column(name = "nickname", nullable = false)
     private String nickname="default_nickname";
 
     @Column(name = "profile_image_url", nullable = false)
