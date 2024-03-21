@@ -1,24 +1,22 @@
 package com.beotkkotthon.areyousleeping.controller;
 
 import com.beotkkotthon.areyousleeping.annotation.UserId;
-import com.beotkkotthon.areyousleeping.domain.Achievement;
-import com.beotkkotthon.areyousleeping.domain.User;
 import com.beotkkotthon.areyousleeping.domain.UserTeam;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
 import com.beotkkotthon.areyousleeping.dto.response.TeamMemberInfoDto;
 import com.beotkkotthon.areyousleeping.dto.response.UserTeamResponseDto;
-import com.beotkkotthon.areyousleeping.repository.AchievementRepository;
-import com.beotkkotthon.areyousleeping.repository.TeamRepository;
-import com.beotkkotthon.areyousleeping.repository.UserTeamRepository;
+import com.beotkkotthon.areyousleeping.exception.CommonException;
+import com.beotkkotthon.areyousleeping.exception.ErrorCode;
+
 import com.beotkkotthon.areyousleeping.service.UserTeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -73,5 +71,24 @@ public class UserTeamController {
         List<TeamMemberInfoDto> teamMembersInfo = userTeamService.getTeamMembersInfo(teamId);
 
         return ResponseDto.ok(teamMembersInfo);
+    }
+
+    @DeleteMapping("/{userId}")
+    @Operation(summary = "팀원 추방하기", description = "팀 id와 user id를 받아 방장이 해당 팀의 특정 유저를 팀에서 추방합니다.")
+    public ResponseDto<?> removeTeamMember(@UserId Long leaderId, @PathVariable Long teamId, @PathVariable Long userId) {
+
+        try{
+            userTeamService.removeTeamMember(leaderId, teamId, userId);
+            return ResponseDto.ok(null);
+        } catch(IllegalAccessException e){
+            // 접근 권한이 없을 때
+            return ResponseDto.fail(new CommonException(ErrorCode.ACCESS_DENIED));
+        } catch(IllegalArgumentException e){
+            // 잘못된 요청인 경우
+            return ResponseDto.fail(new CommonException(ErrorCode.INVALID_ARGUMENT));
+        } catch(EntityNotFoundException e){
+            return ResponseDto.fail(new CommonException(ErrorCode.NOT_FOUND_TEAM));
+        }
+
     }
 }

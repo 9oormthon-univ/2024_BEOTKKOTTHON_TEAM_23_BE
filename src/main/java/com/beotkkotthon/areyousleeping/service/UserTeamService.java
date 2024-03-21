@@ -64,6 +64,7 @@ public class UserTeamService {
         return userTeam;
     }
 
+    // 유저가 팀에서 나가기
     @Transactional
     public UserTeam leaveTeam(Long teamId, Long userId){
 
@@ -87,6 +88,7 @@ public class UserTeamService {
         return userTeam;
     }
 
+    // 유저의 밤샘 활성화 상태 업데이트
     @Transactional
     public UserTeam updateUserActiveStatus(Long teamId, Long userId, boolean isActive){
 
@@ -107,7 +109,8 @@ public class UserTeamService {
         return userTeam;
     }
 
-    @Transactional
+    // 밤샘 활성화되어 있는 멤버의 수를 조회
+    @Transactional(readOnly = true)
     public Long getActiveMembersCount(Long teamId){
 
         if (!teamRepository.existsById(teamId)){
@@ -116,7 +119,8 @@ public class UserTeamService {
         return userTeamRepository.countByTeamIdAndIsActiveTrue(teamId);
     }
 
-    @Transactional
+    // 밤샘 메이트 조회
+    @Transactional(readOnly = true)
     public List<TeamMemberInfoDto> getTeamMembersInfo(Long teamId){
 
         // 해당 팀에 속한 모든 유저 조회
@@ -162,5 +166,40 @@ public class UserTeamService {
             }
         }
         return teamMembersInfo;
+    }
+
+    @Transactional
+    public void removeTeamMember(Long requesterId, Long teamId, Long userId) throws IllegalAccessException, IllegalArgumentException{
+
+        UserTeam requesterUserTeam = userTeamRepository.findByUserIdAndTeamId(requesterId, teamId);
+        if (requesterUserTeam == null) {
+            throw new IllegalArgumentException("요청한 유저는 팀에 속해있지 않습니다.");
+        }
+
+        // 요청한 유저가 해당 팀의 방장인지 확인
+        boolean isLeader = requesterUserTeam.getIsLeader();
+        if (!isLeader){
+            throw new IllegalAccessException("방장만 팀원을 추방할 수 있습니다.");
+        }
+
+        // 추방하려는 유저가 해당 팀에 속해있는지 확인
+        UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
+        if (userTeam==null){
+            throw new IllegalArgumentException("해당 유저는 팀에 속해있지 않습니다.");
+        }
+
+        // 본인 추방 불가
+        if (userId.equals(requesterId)){
+            throw new IllegalArgumentException("본인을 추방할 수 없습니다.");
+        }
+
+        // 팀에서 userId에 해당하는 유저를 제거
+        userTeamRepository.delete(userTeam);
+
+        // 방 인원 수 감소
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 팀을 찾을 수 없습니다."));
+        team.decreaseCurrentNum();
+        teamRepository.save(team);
     }
 }
