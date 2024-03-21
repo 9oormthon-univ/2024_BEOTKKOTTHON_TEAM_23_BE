@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -82,7 +81,12 @@ public class UserTeamService {
 
         // team의 현재 인원수 감소
         team.decreaseCurrentNum();
-        teamRepository.save(team);
+        // 만약 현재 인원수가 0이라면 팀 삭제
+        if (team.getCurrentNum() == 0) {
+            teamRepository.delete(team);
+        } else {
+            teamRepository.save(team);
+        }
 
         return userTeam;
     }
