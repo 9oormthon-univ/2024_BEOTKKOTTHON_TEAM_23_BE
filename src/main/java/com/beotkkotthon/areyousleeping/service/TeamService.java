@@ -5,14 +5,25 @@ import com.beotkkotthon.areyousleeping.domain.User;
 import com.beotkkotthon.areyousleeping.domain.UserTeam;
 import com.beotkkotthon.areyousleeping.domain.nosql.ChatMessageList;
 
+import com.beotkkotthon.areyousleeping.domain.specification.TeamSpecifications;
 import com.beotkkotthon.areyousleeping.dto.request.TeamSaveDto;
+import com.beotkkotthon.areyousleeping.dto.response.TeamResponseDto;
 import com.beotkkotthon.areyousleeping.repository.ChatMessageListRepository;
 import com.beotkkotthon.areyousleeping.repository.TeamRepository;
 import com.beotkkotthon.areyousleeping.repository.UserRepository;
 import com.beotkkotthon.areyousleeping.repository.UserTeamRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +34,7 @@ public class TeamService {
     private final ChatMessageListRepository chatMessageListRepository;
 
     @Transactional
-    public Team createTeam(Long userId, TeamSaveDto teamSaveDto) {
+    public TeamResponseDto createTeam(Long userId, TeamSaveDto teamSaveDto) {
 
         // Team 엔티티 생성 -> 저장
         Team team = teamSaveDto.toEntity();
@@ -47,8 +58,28 @@ public class TeamService {
                                 .build();
         chatMessageListRepository.save(chatMessageList);
 
-        return team;
+        return TeamResponseDto.fromEntity(team);
     }
+    public Map<String, Object> getTeams(Integer page, Integer size, String keyword, String category, Boolean isEmpty, Boolean isPublic) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Specification<Team> spec = Specification.where(null);
+        if (keyword != null) spec = spec.and(TeamSpecifications.hasKeyword(keyword));
+        if (category != null) spec = spec.and(TeamSpecifications.hasCategory(category));
+        if (isEmpty != null) spec = spec.and(TeamSpecifications.isEmpty(isEmpty));
+        if (isPublic != null) spec = spec.and(TeamSpecifications.isPublic(isPublic));
+
+        Page<Team> teams = teamRepository.findAll(spec, pageable);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("hasNext", teams.hasNext());
+        result.put("teams", teams.getContent().stream()
+                .map(TeamResponseDto::fromEntity)
+                .collect(Collectors.toList()));
+
+        return result;
+    }
+
 
 
 }
