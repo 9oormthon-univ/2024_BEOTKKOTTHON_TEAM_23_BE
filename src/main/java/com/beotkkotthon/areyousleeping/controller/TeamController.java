@@ -1,21 +1,16 @@
 package com.beotkkotthon.areyousleeping.controller;
 
 import com.beotkkotthon.areyousleeping.annotation.UserId;
-import com.beotkkotthon.areyousleeping.domain.Team;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
 import com.beotkkotthon.areyousleeping.dto.request.TeamSaveDto;
-import com.beotkkotthon.areyousleeping.dto.response.TeamResponseDto;
 import com.beotkkotthon.areyousleeping.exception.CommonException;
 import com.beotkkotthon.areyousleeping.exception.ErrorCode;
 import com.beotkkotthon.areyousleeping.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.awt.print.Pageable;
 
 @RestController
 @RequiredArgsConstructor
