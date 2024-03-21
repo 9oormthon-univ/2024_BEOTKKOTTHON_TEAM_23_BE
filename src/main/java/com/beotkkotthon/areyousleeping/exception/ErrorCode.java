@@ -28,6 +28,8 @@ public enum ErrorCode {
     BAD_REQUEST_JSON(40006, HttpStatus.BAD_REQUEST, "잘못된 JSON 형식입니다."),
     SEARCH_SHORT_LENGTH_ERROR(40007, HttpStatus.BAD_REQUEST, "검색어는 2글자 이상이어야 합니다."),
     ALREADY_JOINED_TEAM(40008,HttpStatus.BAD_REQUEST,"사용자는 이미 팀에 속해 있습니다."),
+    NOT_MATCH_USER_TEAM(40009,HttpStatus.BAD_REQUEST,"해당 팀에 유저가 속해 있지 않습니다."),
+    OVER_MAX_NUM_OF_TEAM(40010,HttpStatus.BAD_REQUEST,"팀의 모집 인원을 초과하여 팀에 참여할 수 없습니다."),
 
 
     // Access Denied Error
