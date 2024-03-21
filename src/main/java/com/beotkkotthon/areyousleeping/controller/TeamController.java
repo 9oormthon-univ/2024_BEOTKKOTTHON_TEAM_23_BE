@@ -5,12 +5,17 @@ import com.beotkkotthon.areyousleeping.domain.Team;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
 import com.beotkkotthon.areyousleeping.dto.request.TeamSaveDto;
 import com.beotkkotthon.areyousleeping.dto.response.TeamResponseDto;
+import com.beotkkotthon.areyousleeping.exception.CommonException;
+import com.beotkkotthon.areyousleeping.exception.ErrorCode;
 import com.beotkkotthon.areyousleeping.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.awt.print.Pageable;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,11 +29,23 @@ public class TeamController {
     @PostMapping("/team")
     @Operation(summary = "팀 생성", description = "팀 생성 API")
     public ResponseDto<?> createTeam(@UserId Long userId, @RequestBody @Valid TeamSaveDto teamSaveDto){
-
-        Team createdTeam=teamService.createTeam(userId, teamSaveDto);
-        TeamResponseDto teamResponseDto = new TeamResponseDto(createdTeam);
-
-        return ResponseDto.ok(teamResponseDto);
+        return ResponseDto.created(teamService.createTeam(userId, teamSaveDto));
+    }
+    @GetMapping("/team")
+    @Operation(summary = "팀 목록 조회", description = "팀 목록 조회 API")
+    public ResponseDto<?> getTeams(
+            @RequestParam(value="keyword", required = false) String keyword,
+            @RequestParam(value="category", required = false) String category,
+            @RequestParam(value="isEmpty", required = false) Boolean isEmpty,
+            @RequestParam(value="isPublic", required = false) Boolean isPublic,
+            @RequestParam(value="page") Integer page,
+            @RequestParam(value="size") Integer size
+    ) {
+        if (page >= 0 && size >= 0) {
+            return ResponseDto.ok(teamService.getTeams(page, size, keyword, category, isEmpty, isPublic));
+        } else {
+            throw new CommonException(ErrorCode.BAD_REQUEST_PARAMETER);
+        }
     }
 
 }
