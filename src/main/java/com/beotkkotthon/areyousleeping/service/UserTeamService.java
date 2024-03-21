@@ -1,8 +1,11 @@
 package com.beotkkotthon.areyousleeping.service;
 
+import com.beotkkotthon.areyousleeping.domain.Achievement;
 import com.beotkkotthon.areyousleeping.domain.Team;
 import com.beotkkotthon.areyousleeping.domain.User;
 import com.beotkkotthon.areyousleeping.domain.UserTeam;
+import com.beotkkotthon.areyousleeping.dto.response.TeamMemberInfoDto;
+import com.beotkkotthon.areyousleeping.repository.AchievementRepository;
 import com.beotkkotthon.areyousleeping.repository.TeamRepository;
 import com.beotkkotthon.areyousleeping.repository.UserRepository;
 import com.beotkkotthon.areyousleeping.repository.UserTeamRepository;
@@ -12,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +26,7 @@ public class UserTeamService {
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
     private final UserTeamRepository userTeamRepository;
+    private final AchievementRepository achievementRepository;
 
     // 밤샘 참여하기 버튼을 누른 사용자를 팀에 추가하는 메소드
     @Transactional
@@ -98,5 +105,62 @@ public class UserTeamService {
             userTeamRepository.save(userTeam);
         }
         return userTeam;
+    }
+
+    @Transactional
+    public Long getActiveMembersCount(Long teamId){
+
+        if (!teamRepository.existsById(teamId)){
+            throw new NoSuchElementException("해당 팀을 조회할 수 없습니다. " + teamId);
+        }
+        return userTeamRepository.countByTeamIdAndIsActiveTrue(teamId);
+    }
+
+    @Transactional
+    public List<TeamMemberInfoDto> getTeamMembersInfo(Long teamId){
+
+        // 해당 팀에 속한 모든 유저 조회
+        List<UserTeam> userTeams = userTeamRepository.findAllByTeamId(teamId);
+
+        if (userTeams.isEmpty()) {
+            throw new IllegalArgumentException("해당 팀에 속한 사용자를 조회할 수 없습니다.");
+        }
+
+        List<TeamMemberInfoDto> teamMembersInfo = new ArrayList<>();
+        for (UserTeam userTeam : userTeams) {
+
+            User user = userTeam.getUser();
+
+            Achievement latestAchievement = achievementRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId());
+
+            if (latestAchievement == null) {
+
+                // 칭호가 없는 경우, 기본값 설정
+                String defaultTitle = "잠만보";
+                String defaultContent = "기본값 내용";
+                Integer defaultDifficulty = 1;
+
+                Achievement defaultAchievement = Achievement.builder()
+                        .user(user)
+                        .title(defaultTitle)
+                        .content(defaultContent)
+                        .difficulty(defaultDifficulty)
+                        .build();
+
+                teamMembersInfo.add(TeamMemberInfoDto.builder()
+                        .userTeam(userTeam)
+                        .user(user)
+                        .achievement(defaultAchievement)
+                        .build());
+
+            } else {
+                teamMembersInfo.add(TeamMemberInfoDto.builder()
+                        .userTeam(userTeam)
+                        .user(user)
+                        .achievement(latestAchievement)
+                        .build());
+            }
+        }
+        return teamMembersInfo;
     }
 }
