@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -39,7 +38,7 @@ public class AllNighters {
         this.startAt = LocalDateTime.now();
     }
 
-    public void updateByEnd(Integer duration) {
+    public void updateByEnd() {
         this.endAt = LocalDateTime.now();
         this.duration = (int) Duration.between(startAt, endAt).getSeconds();
     }

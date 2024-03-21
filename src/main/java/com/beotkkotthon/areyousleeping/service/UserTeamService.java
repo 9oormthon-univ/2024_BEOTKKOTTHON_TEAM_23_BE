@@ -1,22 +1,16 @@
 package com.beotkkotthon.areyousleeping.service;
 
-import com.beotkkotthon.areyousleeping.domain.Achievement;
-import com.beotkkotthon.areyousleeping.domain.Team;
-import com.beotkkotthon.areyousleeping.domain.User;
-import com.beotkkotthon.areyousleeping.domain.UserTeam;
+import com.beotkkotthon.areyousleeping.domain.*;
 import com.beotkkotthon.areyousleeping.dto.response.TeamMemberInfoDto;
-import com.beotkkotthon.areyousleeping.repository.AchievementRepository;
-import com.beotkkotthon.areyousleeping.repository.TeamRepository;
-import com.beotkkotthon.areyousleeping.repository.UserRepository;
-import com.beotkkotthon.areyousleeping.repository.UserTeamRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.beotkkotthon.areyousleeping.exception.CommonException;
+import com.beotkkotthon.areyousleeping.exception.ErrorCode;
+import com.beotkkotthon.areyousleeping.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -26,34 +20,37 @@ public class UserTeamService {
     private final TeamRepository teamRepository;
     private final UserTeamRepository userTeamRepository;
     private final AchievementRepository achievementRepository;
+    private final AllNightersRepository allNightersRepository;
 
     // 밤샘 참여하기 버튼을 누른 사용자를 팀에 추가하는 메소드
     @Transactional
     public UserTeam joinTeam(Long teamId, Long userId){
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 팀을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM));
 
         // 사용자가 이미 팀에 속해있는지 확인
         boolean isAlreadyJoined = userTeamRepository.existsByUserAndTeam(user, team);
         if (isAlreadyJoined){
-            throw new IllegalStateException("유저가 이미 팀에 속해있습니다.");
+            throw new CommonException(ErrorCode.ALREADY_JOINED_TEAM);
         }
 
         // 팀의 현재 인원이 최대 인원을 초과하는지 확인
         if(team.getCurrentNum() >= team.getMaxNum()){
-            throw new IllegalStateException("팀의 모집 인원을 초과하여 팀에 참여할 수 없습니다.");
+            throw new CommonException(ErrorCode.OVER_MAX_NUM_OF_TEAM);
         }
 
         // UserTeam 객체 생성 및 저장
         UserTeam userTeam = UserTeam.builder()
                 .user(user)
                 .team(team)
+                .historyTeamId(team.getId())
                 .isLeader(false)
                 .build();
+
         userTeam = userTeamRepository.save(userTeam);
 
         // 팀의 현재 인원 수를 1 증가시키고 저장
@@ -67,17 +64,26 @@ public class UserTeamService {
     public UserTeam leaveTeam(Long teamId, Long userId){
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 팀을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM));
 
-        //UserTeam에서 유저를 제거
         UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
         if (userTeam == null) {
-            throw new IllegalArgumentException("해당 팀에 유저가 속해 있지 않습니다.");
+            throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
         }
-        userTeamRepository.delete(userTeam);
+
+        if(userTeam.getIsActive()){ // 밤샘 중이라면 밤샘 종료 업데이트 로직까지 수행
+            userTeam.updateByQuit(); // userTeam의 team을 null로 설정
+            userTeamRepository.save(userTeam);
+            AllNighters allNighters = allNightersRepository.findByUserTeamId(userTeam.getId());
+            allNighters.updateByEnd(); // 밤샘 종료 시간 업데이트(끝 시간 - 시작시간 = 밤샘 시간: Duration)
+            allNightersRepository.save(allNighters);
+        } else { // 밤샘중이 아니라면 그냥 userTeam의 team을 null로 설정하고 끝
+            userTeam.updateByQuit();
+            userTeamRepository.save(userTeam);
+        }
 
         // team의 현재 인원수 감소
         team.decreaseCurrentNum();
@@ -96,15 +102,21 @@ public class UserTeamService {
 
         UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
         if (userTeam == null) {
-            throw new IllegalArgumentException("해당 팀에 유저가 속해 있지 않습니다.");
+            throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
         }
 
         // 현재 isActive가 true일 때 lastActiveAt을 현재 시간으로 업데이트
         if (userTeam.getIsActive() != isActive) { // 현재 상태와 요청된 상태가 다를 경우에만 실행
             if (isActive) {
                 userTeam.updateByStart(isActive); // 밤샘 시작
+                allNightersRepository.save(AllNighters.builder()
+                        .userTeam(userTeam)
+                        .build());
             } else {
                 userTeam.updateByEnd(isActive); // 밤샘 종료
+                AllNighters allNighters = allNightersRepository.findByUserTeamId(userTeam.getId());
+                allNighters.updateByEnd(); // 밤샘 종료 시간 업데이트(끝 시간 - 시작시간 = 밤샘 시간: Duration)
+                allNightersRepository.save(allNighters);
             }
             userTeamRepository.save(userTeam);
         }
@@ -115,7 +127,7 @@ public class UserTeamService {
     public Long getActiveMembersCount(Long teamId){
 
         if (!teamRepository.existsById(teamId)){
-            throw new NoSuchElementException("해당 팀을 조회할 수 없습니다. " + teamId);
+            throw new CommonException(ErrorCode.NOT_FOUND_TEAM);
         }
         return userTeamRepository.countByTeamIdAndIsActiveTrue(teamId);
     }
@@ -127,7 +139,7 @@ public class UserTeamService {
         List<UserTeam> userTeams = userTeamRepository.findAllByTeamId(teamId);
 
         if (userTeams.isEmpty()) {
-            throw new IllegalArgumentException("해당 팀에 속한 사용자를 조회할 수 없습니다.");
+            throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
         }
 
         List<TeamMemberInfoDto> teamMembersInfo = new ArrayList<>();

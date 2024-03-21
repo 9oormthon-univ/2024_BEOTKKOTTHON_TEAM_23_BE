@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AllNightersRepository extends JpaRepository<AllNighters, Long> {
+    AllNighters findByUserTeamId(Long userId);
 }

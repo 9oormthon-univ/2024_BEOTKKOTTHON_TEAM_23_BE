@@ -61,4 +61,9 @@ public class UserTeam {
         this.isActive = isActive;
     }
 
+    public void updateByQuit() {
+        this.isActive = false;
+        this.team = null;
+    }
+
 }
