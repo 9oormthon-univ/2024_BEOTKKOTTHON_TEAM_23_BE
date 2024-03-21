@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +40,7 @@ public class TeamService {
     public TeamResponseDto createTeam(Long userId, TeamSaveDto teamSaveDto) {
         boolean userIsInExistingTeam = userTeamRepository.findAllByUserId(userId).stream()
                 .map(UserTeam::getTeam)
+                .filter(Objects::nonNull) // 삭제된 Team을 참조하는 경우를 대비하여 null 체크
                 .anyMatch(team -> teamRepository.existsById(team.getId())); // 유저의 userTeam과 연결된 Team 객체가 teamRepository에 존재하는지 확인
                                                                             // 존재하지 않는다면 단순 기록을 위한 userTeam인 것을 의미(죽은 팀)
         if (userIsInExistingTeam) {
@@ -51,7 +53,7 @@ public class TeamService {
 
         // User 조회
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
         // UserTeam 인스턴스 생성 및 연관관계 설정, 방 생성 시 방장으로 설정
         UserTeam userTeam = UserTeam.builder()
@@ -60,6 +62,7 @@ public class TeamService {
                 .historyTeamId(team.getId())
                 .isLeader(true)
                 .build();
+
         userTeamRepository.save(userTeam);
 
         ChatMessageList chatMessageList = ChatMessageList.builder()
