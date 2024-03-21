@@ -122,16 +122,44 @@ public class UserTeamService {
         // 해당 팀에 속한 모든 유저 조회
         List<UserTeam> userTeams = userTeamRepository.findAllByTeamId(teamId);
 
+        if (userTeams.isEmpty()) {
+            throw new IllegalArgumentException("해당 팀에 속한 사용자를 조회할 수 없습니다.");
+        }
+
         List<TeamMemberInfoDto> teamMembersInfo = new ArrayList<>();
         for (UserTeam userTeam : userTeams) {
-            User user = userTeam.getUser();
-            Achievement latestachievement = achievementRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId());
 
-            teamMembersInfo.add(TeamMemberInfoDto.builder()
-                    .userTeam(userTeam)
-                    .user(user)
-                    .achievement(latestachievement)
-                    .build());
+            User user = userTeam.getUser();
+
+            Achievement latestAchievement = achievementRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId());
+
+            if (latestAchievement == null) {
+
+                // 칭호가 없는 경우, 기본값 설정
+                String defaultTitle = "잠만보";
+                String defaultContent = "기본값 내용";
+                Integer defaultDifficulty = 1;
+
+                Achievement defaultAchievement = Achievement.builder()
+                        .user(user)
+                        .title(defaultTitle)
+                        .content(defaultContent)
+                        .difficulty(defaultDifficulty)
+                        .build();
+
+                teamMembersInfo.add(TeamMemberInfoDto.builder()
+                        .userTeam(userTeam)
+                        .user(user)
+                        .achievement(defaultAchievement)
+                        .build());
+
+            } else {
+                teamMembersInfo.add(TeamMemberInfoDto.builder()
+                        .userTeam(userTeam)
+                        .user(user)
+                        .achievement(latestAchievement)
+                        .build());
+            }
         }
         return teamMembersInfo;
     }
