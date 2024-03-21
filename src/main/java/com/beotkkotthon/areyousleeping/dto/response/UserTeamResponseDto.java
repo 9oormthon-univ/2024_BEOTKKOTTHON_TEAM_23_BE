@@ -16,6 +16,7 @@ public class UserTeamResponseDto {
 
     private Long userId;
     private Long teamId;
+    private Long historyTeamId;
     private Boolean isActive;
     private Boolean isLeader;
     private LocalDateTime lastActiveAt;
@@ -26,6 +27,7 @@ public class UserTeamResponseDto {
     public UserTeamResponseDto(UserTeam userTeam){
         this.userId = userTeam.getUser().getId();
         this.teamId = userTeam.getTeam().getId();
+        this.historyTeamId = userTeam.getHistoryTeamId();
         this.isActive = userTeam.getIsActive();
         this.isLeader = userTeam.getIsActive();
         this.lastActiveAt = userTeam.getLastActiveAt();

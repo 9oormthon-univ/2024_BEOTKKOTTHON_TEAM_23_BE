@@ -27,7 +27,7 @@ public enum ErrorCode {
     BAD_REQUEST_PARAMETER(40005, HttpStatus.BAD_REQUEST, "잘못된 요청 파라미터입니다."),
     BAD_REQUEST_JSON(40006, HttpStatus.BAD_REQUEST, "잘못된 JSON 형식입니다."),
     SEARCH_SHORT_LENGTH_ERROR(40007, HttpStatus.BAD_REQUEST, "검색어는 2글자 이상이어야 합니다."),
-
+    ALREADY_JOINED_TEAM(40008,HttpStatus.BAD_REQUEST,"사용자는 이미 팀에 속해 있습니다."),
 
 
     // Access Denied Error

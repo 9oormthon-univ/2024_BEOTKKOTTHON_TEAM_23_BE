@@ -23,8 +23,11 @@ public class UserTeam {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = false)
+    @JoinColumn(name = "team_id", nullable = true)
     private Team team;
+
+    @Column(name = "history_team_id", nullable = false)
+    private Long historyTeamId;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = false;
@@ -39,9 +42,10 @@ public class UserTeam {
     private LocalDateTime createdAt;
 
     @Builder
-    private UserTeam(User user, Team team, Boolean isLeader) {
+    private UserTeam(User user, Team team, Long historyTeamId, Boolean isLeader) {
         this.user = user;
         this.team = team;
+        this.historyTeamId = historyTeamId;
         this.isActive = false;
         this.isLeader = isLeader;
         this.lastActiveAt = null;

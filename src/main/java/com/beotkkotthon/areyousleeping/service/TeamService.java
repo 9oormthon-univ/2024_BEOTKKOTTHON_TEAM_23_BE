@@ -8,6 +8,8 @@ import com.beotkkotthon.areyousleeping.domain.nosql.ChatMessageList;
 import com.beotkkotthon.areyousleeping.domain.specification.TeamSpecifications;
 import com.beotkkotthon.areyousleeping.dto.request.TeamSaveDto;
 import com.beotkkotthon.areyousleeping.dto.response.TeamResponseDto;
+import com.beotkkotthon.areyousleeping.exception.CommonException;
+import com.beotkkotthon.areyousleeping.exception.ErrorCode;
 import com.beotkkotthon.areyousleeping.repository.ChatMessageListRepository;
 import com.beotkkotthon.areyousleeping.repository.TeamRepository;
 import com.beotkkotthon.areyousleeping.repository.UserRepository;
@@ -35,7 +37,13 @@ public class TeamService {
 
     @Transactional
     public TeamResponseDto createTeam(Long userId, TeamSaveDto teamSaveDto) {
-
+        boolean userIsInExistingTeam = userTeamRepository.findAllByUserId(userId).stream()
+                .map(UserTeam::getTeam)
+                .anyMatch(team -> teamRepository.existsById(team.getId())); // 유저의 userTeam과 연결된 Team 객체가 teamRepository에 존재하는지 확인
+                                                                            // 존재하지 않는다면 단순 기록을 위한 userTeam인 것을 의미(죽은 팀)
+        if (userIsInExistingTeam) {
+            throw new CommonException(ErrorCode.ALREADY_JOINED_TEAM);
+        }
         // Team 엔티티 생성 -> 저장
         Team team = teamSaveDto.toEntity();
         team.addMember(); // 팀 생성 시 현재 인원수를 1로 설정
@@ -49,6 +57,7 @@ public class TeamService {
         UserTeam userTeam = UserTeam.builder()
                 .user(user)
                 .team(team)
+                .historyTeamId(team.getId())
                 .isLeader(true)
                 .build();
         userTeamRepository.save(userTeam);
