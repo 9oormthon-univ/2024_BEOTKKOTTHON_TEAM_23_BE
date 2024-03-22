@@ -214,7 +214,7 @@ public class UserTeamService {
 
         // 방 인원 수 감소
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 팀을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM));
         team.decreaseCurrentNum();
         teamRepository.save(team);
     }
