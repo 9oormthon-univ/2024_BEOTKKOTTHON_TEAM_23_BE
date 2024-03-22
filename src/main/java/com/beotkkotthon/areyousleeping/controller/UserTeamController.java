@@ -77,18 +77,8 @@ public class UserTeamController {
     @Operation(summary = "팀원 추방하기", description = "팀 id와 user id를 받아 방장이 해당 팀의 특정 유저를 팀에서 추방합니다.")
     public ResponseDto<?> removeTeamMember(@UserId Long leaderId, @PathVariable Long teamId, @PathVariable Long userId) {
 
-        try{
-            userTeamService.removeTeamMember(leaderId, teamId, userId);
-            return ResponseDto.ok(null);
-        } catch(IllegalAccessException e){
-            // 접근 권한이 없을 때
-            return ResponseDto.fail(new CommonException(ErrorCode.ACCESS_DENIED));
-        } catch(IllegalArgumentException e){
-            // 잘못된 요청인 경우
-            return ResponseDto.fail(new CommonException(ErrorCode.INVALID_ARGUMENT));
-        } catch(EntityNotFoundException e){
-            return ResponseDto.fail(new CommonException(ErrorCode.NOT_FOUND_TEAM));
-        }
+        userTeamService.removeTeamMember(leaderId, teamId, userId);
+        return ResponseDto.ok(null);
 
     }
 }

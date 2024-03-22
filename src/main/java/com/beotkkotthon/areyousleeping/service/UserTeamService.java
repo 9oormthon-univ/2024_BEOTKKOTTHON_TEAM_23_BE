@@ -185,37 +185,53 @@ public class UserTeamService {
     }
 
     @Transactional
-    public void removeTeamMember(Long requesterId, Long teamId, Long userId) throws IllegalAccessException, IllegalArgumentException{
+    public void removeTeamMember(Long requesterId, Long teamId, Long userId) {
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM));
 
         UserTeam requesterUserTeam = userTeamRepository.findByUserIdAndTeamId(requesterId, teamId);
         if (requesterUserTeam == null) {
-            throw new IllegalArgumentException("요청한 유저는 팀에 속해있지 않습니다.");
+            throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
         }
 
         // 요청한 유저가 해당 팀의 방장인지 확인
         boolean isLeader = requesterUserTeam.getIsLeader();
         if (!isLeader){
-            throw new IllegalAccessException("방장만 팀원을 추방할 수 있습니다.");
+            throw new CommonException(ErrorCode.NOT_MATCH_LEADER);
         }
 
         // 추방하려는 유저가 해당 팀에 속해있는지 확인
         UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
         if (userTeam==null){
-            throw new IllegalArgumentException("해당 유저는 팀에 속해있지 않습니다.");
+            throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
         }
 
         // 본인 추방 불가
         if (userId.equals(requesterId)){
-            throw new IllegalArgumentException("본인을 추방할 수 없습니다.");
+            throw new CommonException(ErrorCode.BAD_REQUEST_PARAMETER);
         }
 
-        // 팀에서 userId에 해당하는 유저를 제거
-        userTeamRepository.delete(userTeam);
+        if(userTeam.getIsActive()){ // 밤샘 중이라면 밤샘 종료 업데이트 로직까지 수행
+            userTeam.updateByQuit(); // userTeam의 team을 null로 설정
+            userTeamRepository.save(userTeam);
+            AllNighters allNighters = allNightersRepository.findByUserTeamId(userTeam.getId());
+            allNighters.updateByEnd(); // 밤샘 종료 시간 업데이트
+            allNightersRepository.save(allNighters);
+        } else { // 밤샘중이 아니라면 그냥 userTeam의 team을 null로 설정하고 끝
+            userTeam.updateByQuit();
+            userTeamRepository.save(userTeam);
+        }
 
         // 방 인원 수 감소
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM));
         team.decreaseCurrentNum();
-        teamRepository.save(team);
+        // 만약 현재 인원수가 0이라면 팀 삭제
+        if (team.getCurrentNum() == 0) {
+            teamRepository.delete(team);
+        } else {
+            teamRepository.save(team);
+        }
     }
+
+
 }
