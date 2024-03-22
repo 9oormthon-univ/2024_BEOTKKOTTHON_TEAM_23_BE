@@ -12,7 +12,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +20,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
@@ -32,7 +30,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = HeaderUtil.refineHeader(request, Constants.AUTHORIZATION_HEADER, Constants.BEARER_PREFIX)
                 .orElseThrow(() -> new IllegalArgumentException("Authorization Header Is Not Found!"));
         Claims claims = jwtUtil.validateToken(token);
-        log.info("claim: getUserId() = {}", claims.get(Constants.CLAIM_USER_ID, Long.class));
 
         JwtUserInfo jwtUserInfo = new JwtUserInfo(
                 claims.get(Constants.CLAIM_USER_ID, Long.class),
@@ -47,7 +44,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 인증 받은 후의 인증 객체
         UsernamePasswordAuthenticationToken authenticatedToken
                 = (UsernamePasswordAuthenticationToken) jwtAuthenticationManager.authenticate(unAuthenticatedToken);
-        log.info("인증 성공");
 
         // 사용자의 IP등 세부 정보 인증 정보에 추가
         authenticatedToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
