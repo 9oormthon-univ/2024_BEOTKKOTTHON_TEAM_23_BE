@@ -60,6 +60,7 @@ public class UserTeamService {
         return userTeam;
     }
 
+    // 유저가 팀에서 나가기
     @Transactional
     public UserTeam leaveTeam(Long teamId, Long userId){
 
@@ -74,29 +75,12 @@ public class UserTeamService {
             throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
         }
 
-        if(userTeam.getIsActive()){ // 밤샘 중이라면 밤샘 종료 업데이트 로직까지 수행
-            userTeam.updateByQuit(); // userTeam의 team을 null로 설정
-            userTeamRepository.save(userTeam);
-            AllNighters allNighters = allNightersRepository.findByUserTeamId(userTeam.getId());
-            allNighters.updateByEnd(); // 밤샘 종료 시간 업데이트(끝 시간 - 시작시간 = 밤샘 시간: Duration)
-            allNightersRepository.save(allNighters);
-        } else { // 밤샘중이 아니라면 그냥 userTeam의 team을 null로 설정하고 끝
-            userTeam.updateByQuit();
-            userTeamRepository.save(userTeam);
-        }
-
-        // team의 현재 인원수 감소
-        team.decreaseCurrentNum();
-        // 만약 현재 인원수가 0이라면 팀 삭제
-        if (team.getCurrentNum() == 0) {
-            teamRepository.delete(team);
-        } else {
-            teamRepository.save(team);
-        }
+        removeUserTeamAndUpdateTeamNum(userTeam, team);
 
         return userTeam;
     }
 
+    // 유저의 밤샘 활성화 상태 업데이트
     @Transactional
     public UserTeam updateUserActiveStatus(Long teamId, Long userId, boolean isActive){
 
@@ -123,7 +107,8 @@ public class UserTeamService {
         return userTeam;
     }
 
-    @Transactional
+    // 밤샘 활성화되어 있는 멤버의 수를 조회
+    @Transactional(readOnly = true)
     public Long getActiveMembersCount(Long teamId){
 
         if (!teamRepository.existsById(teamId)){
@@ -132,7 +117,8 @@ public class UserTeamService {
         return userTeamRepository.countByTeamIdAndIsActiveTrue(teamId);
     }
 
-    @Transactional
+    // 밤샘 메이트 조회
+    @Transactional(readOnly = true)
     public List<TeamMemberInfoDto> getTeamMembersInfo(Long teamId){
 
         // 해당 팀에 속한 모든 유저 조회
@@ -179,4 +165,62 @@ public class UserTeamService {
         }
         return teamMembersInfo;
     }
+
+    @Transactional
+    public void expelTeamMember(Long requesterId, Long teamId, Long userId) {
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM));
+
+        UserTeam requesterUserTeam = userTeamRepository.findByUserIdAndTeamId(requesterId, teamId);
+        if (requesterUserTeam == null) {
+            throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
+        }
+
+        // 요청한 유저가 해당 팀의 방장인지 확인
+        boolean isLeader = requesterUserTeam.getIsLeader();
+        if (!isLeader){
+            throw new CommonException(ErrorCode.NOT_MATCH_LEADER);
+        }
+
+        // 추방하려는 유저가 해당 팀에 속해있는지 확인
+        UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
+        if (userTeam==null){
+            throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
+        }
+
+        // 본인 추방 불가
+        if (userId.equals(requesterId)){
+            throw new CommonException(ErrorCode.BAD_REQUEST_PARAMETER);
+        }
+
+        removeUserTeamAndUpdateTeamNum(userTeam, team);
+    }
+
+    @Transactional
+    public void removeUserTeamAndUpdateTeamNum(UserTeam userTeam, Team team){
+
+        if(userTeam.getIsActive()){ // 밤샘 중이라면 밤샘 종료 업데이트 로직까지 수행
+            userTeam.updateByQuit(); // userTeam의 team을 null로 설정
+            userTeamRepository.save(userTeam);
+            AllNighters allNighters = allNightersRepository.findByUserTeamId(userTeam.getId());
+            allNighters.updateByEnd(); // 밤샘 종료 시간 업데이트
+            allNightersRepository.save(allNighters);
+        } else { // 밤샘중이 아니라면 그냥 userTeam의 team을 null로 설정하고 끝
+            userTeam.updateByQuit();
+            userTeamRepository.save(userTeam);
+        }
+
+        // team의 인원 수 감소
+        team.decreaseCurrentNum();
+
+        // 만약 현재 인원수가 0이라면 팀 삭제
+        if (team.getCurrentNum() == 0) {
+            teamRepository.delete(team);
+        } else {
+            teamRepository.save(team);
+        }
+
+    }
+
 }

@@ -2,6 +2,7 @@ package com.beotkkotthon.areyousleeping.controller;
 
 import com.beotkkotthon.areyousleeping.annotation.UserId;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
+import com.beotkkotthon.areyousleeping.dto.response.FollowingInfoDto;
 import com.beotkkotthon.areyousleeping.dto.response.FollowingResponseDto;
 import com.beotkkotthon.areyousleeping.repository.UserRepository;
 import com.beotkkotthon.areyousleeping.service.FollowingService;
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,5 +44,14 @@ public class FollowingController {
                 .build();
 
         return ResponseDto.ok(followingResponseDto);
+    }
+
+    @GetMapping("")
+    @Operation(summary = "팔로우 조회", description = "내가 팔로우하는 유저 목록을 조회합니다.")
+    public ResponseDto<?> getMyFollowers(@UserId Long userId) {
+
+        List<FollowingInfoDto> followings = followingService.getFollowingInfo(userId);
+
+        return ResponseDto.ok(followings);
     }
 }
