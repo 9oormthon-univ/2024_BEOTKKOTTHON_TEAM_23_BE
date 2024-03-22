@@ -2,7 +2,7 @@ package com.beotkkotthon.areyousleeping.controller;
 
 import com.beotkkotthon.areyousleeping.annotation.UserId;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
-import com.beotkkotthon.areyousleeping.dto.response.FollowerInfoDto;
+import com.beotkkotthon.areyousleeping.dto.response.FollowingInfoDto;
 import com.beotkkotthon.areyousleeping.dto.response.FollowingResponseDto;
 import com.beotkkotthon.areyousleeping.repository.UserRepository;
 import com.beotkkotthon.areyousleeping.service.FollowingService;
@@ -47,13 +47,11 @@ public class FollowingController {
     }
 
     @GetMapping("")
-    @Operation(summary = "팔로워 조회", description = "나를 팔로워하는 유저 목록을 조회합니다.")
+    @Operation(summary = "팔로우 조회", description = "내가 팔로우하는 유저 목록을 조회합니다.")
     public ResponseDto<?> getMyFollowers(@UserId Long userId) {
 
-        User user=userRepository.findById(userId)
-                .orElseThrow()
-        List<FollowerInfoDto> followers = followingService.getMyFollowers(userId);
+        List<FollowingInfoDto> followings = followingService.getFollowingInfo(userId);
 
-        return ResponseDto.ok(followers);
+        return ResponseDto.ok(followings);
     }
 }
