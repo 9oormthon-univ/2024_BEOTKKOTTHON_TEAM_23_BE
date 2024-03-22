@@ -36,6 +36,7 @@ public enum ErrorCode {
     ACCESS_DENIED(40300, HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     NOT_MATCH_AUTH_CODE(40301, HttpStatus.FORBIDDEN, "인증 코드가 일치하지 않습니다."),
     NOT_MATCH_USER(40302, HttpStatus.FORBIDDEN, "해당 사용자가 일치하지 않습니다."),
+    NOT_MATCH_LEADER(40303, HttpStatus.FORBIDDEN, "추방 권한이 없습니다."),
 
 
     // Unauthorized Error
