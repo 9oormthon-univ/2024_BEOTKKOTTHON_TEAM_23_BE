@@ -7,7 +7,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 @Builder
 public record MissionDto(
-        Long id,
+        Long missionId,
         Long userTeamId,
         Long userId,
         String nickname,
@@ -21,7 +21,7 @@ public record MissionDto(
 
     public static MissionDto fromEntity(Mission mission) {
         return MissionDto.builder()
-                .id(mission.getId())
+                .missionId(mission.getId())
                 .userTeamId(mission.getUserTeam().getId())
                 .userId(mission.getUserTeam().getUser().getId())
                 .nickname(mission.getUserTeam().getUser().getNickname())
