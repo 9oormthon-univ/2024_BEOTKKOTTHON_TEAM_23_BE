@@ -66,4 +66,7 @@ public class UserTeam {
         this.team = null;
     }
 
+    public void changeLeader(boolean isLeader){
+        this.isLeader = isLeader;
+    }
 }
