@@ -65,6 +65,20 @@ public class AllNightersService {
                         .duration(allNighter.getDuration())
                         .build())
                 .toList();
+    }
 
+    @Transactional(readOnly = true)
+    public Map<String, Object> readAllNightersHistory(Long userId) {
+        List<AllNighters> allNightersList = allNightersRepository.findByUserId(userId);
+
+        int totalDuration = allNightersList.stream()
+                .map(AllNighters::getDuration)
+                .reduce(0, Integer::sum);
+        int totalAllNighters = allNightersList.size();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalDuration", totalDuration);
+        result.put("totalAllNighters", totalAllNighters);
+        return result;
     }
 }
