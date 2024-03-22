@@ -77,7 +77,7 @@ public class UserTeamController {
     @Operation(summary = "팀원 추방하기", description = "팀 id와 user id를 받아 방장이 해당 팀의 특정 유저를 팀에서 추방합니다.")
     public ResponseDto<?> removeTeamMember(@UserId Long leaderId, @PathVariable Long teamId, @PathVariable Long userId) {
 
-        userTeamService.removeTeamMember(leaderId, teamId, userId);
+        userTeamService.expelTeamMember(leaderId, teamId, userId);
         return ResponseDto.ok(null);
 
     }
