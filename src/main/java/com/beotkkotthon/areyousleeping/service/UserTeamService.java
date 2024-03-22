@@ -64,9 +64,6 @@ public class UserTeamService {
     @Transactional
     public UserTeam leaveTeam(Long teamId, Long userId){
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
-
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM));
 
@@ -75,8 +72,12 @@ public class UserTeamService {
             throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
         }
 
+        boolean isLeader = userTeam.getIsLeader(); // 팀을 떠나는 사용자가 리더인지 확인
         removeUserTeamAndUpdateTeamNum(userTeam, team);
 
+        if (isLeader){
+            updateLeaderOnLeaderLeaving(teamId, userId); // 팀을 떠나는 사용자가 리더이면 새로운 리더를 임명
+        }
         return userTeam;
     }
 
@@ -219,6 +220,30 @@ public class UserTeamService {
             teamRepository.delete(team);
         } else {
             teamRepository.save(team);
+        }
+
+    }
+
+    @Transactional
+    public void updateLeaderOnLeaderLeaving(Long teamId, Long userId){
+
+        //teamId가 null일 경우 예외 발생
+        if (teamId==null){
+            throw new CommonException(ErrorCode.NOT_FOUND_TEAM);
+        }
+
+        // 팀 나가기를 요청한 유저가 방장인지 확인
+        UserTeam requesterUserTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
+        if (requesterUserTeam == null) {
+            throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
+        }
+
+        // 방장이 나갔을 때 첫 번째 멤버를 새로운 방장으로 설정
+        List<UserTeam> users = userTeamRepository.findByTeamIdOrderById(teamId);
+        if (!users.isEmpty()) {
+            UserTeam newLeader = users.get(0);
+            newLeader.changeLeader(true);
+            userTeamRepository.save(newLeader);
         }
 
     }
