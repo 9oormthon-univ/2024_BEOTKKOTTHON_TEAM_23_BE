@@ -16,6 +16,7 @@ public class TeamMemberInfoDto {
     private String nickname;
     private String title;
     private Boolean isActive;
+    private Boolean isLeader;
 
     @Builder
     public TeamMemberInfoDto(UserTeam userTeam, User user, Achievement achievement) {
@@ -23,6 +24,7 @@ public class TeamMemberInfoDto {
         this.nickname = user.getNickname();
         this.title = achievement.getTitle();
         this.isActive = userTeam.getIsActive();
+        this.isLeader = userTeam.getIsLeader();
 
     }
 
