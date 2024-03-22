@@ -18,12 +18,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class AllNightersController {
     private final AllNightersService allNightersService;
     @GetMapping("/summary")
-    @Operation(summary = "월별 밤샘 기록 조회", description = "조회하고자 하는 년,월을 바탕으로 월별 밤샘 기록을 조회합니다.")
+    @Operation(summary = "월별 밤샘 기록 조회 / 마이페이지 첫 화면 들어올 때", description = "조회하고자 하는 년,월을 바탕으로 월별 밤샘 기록 + 밤샘 총 시간, 횟수를 조회합니다.")
     public ResponseDto<?> readAllNighters(
             @UserId Long userId,
             @RequestParam(value = "year") int year,
             @RequestParam(value = "month") int month
     ) {
-        return ResponseDto.ok(allNightersService.readAllNighters(userId, year, month));
+        return ResponseDto.ok(allNightersService.readAllNightersSummary(userId, year, month));
+    }
+
+    @GetMapping("/calendar")
+    @Operation(summary = "월별 밤샘 기록 조회", description = "조회하고자 하는 년,월을 바탕으로 월별 밤샘 기록을 조회합니다.")
+    public ResponseDto<?> readAllNightersCalendar(
+            @UserId Long userId,
+            @RequestParam(value = "year") int year,
+            @RequestParam(value = "month") int month
+    ) {
+        return ResponseDto.ok(allNightersService.readAllNightersCalendar(userId, year, month));
     }
 }

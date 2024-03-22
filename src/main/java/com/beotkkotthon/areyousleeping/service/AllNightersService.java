@@ -18,7 +18,7 @@ import java.util.Map;
 public class AllNightersService {
     private final AllNightersRepository allNightersRepository;
     @Transactional(readOnly = true)
-    public Map<String, Object> readAllNighters(Long userId, int year, int month) {
+    public Map<String, Object> readAllNightersSummary(Long userId, int year, int month) {
 
         // 시작 날짜와 종료 날짜 설정
         LocalDateTime startOfMonth = YearMonth.of(year, month).atDay(1).atStartOfDay();
@@ -47,5 +47,24 @@ public class AllNightersService {
         result.put("totalAllNighters", totalAllNighters);
         result.put("allNightersRecords", allNightersDtos);
         return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<AllNightersDto> readAllNightersCalendar(Long userId, int year, int month) {
+        // 시작 날짜와 종료 날짜 설정
+        LocalDateTime startOfMonth = YearMonth.of(year, month).atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = YearMonth.of(year, month).atEndOfMonth().atTime(23, 59, 59);
+
+        List<AllNighters> allNightersList = allNightersRepository.findByUserIdAndEndAtBetween(userId, startOfMonth, endOfMonth);
+
+        return allNightersList.stream()
+                .map(allNighter -> AllNightersDto.builder()
+                        .id(allNighter.getUserTeam().getId())
+                        .startAt(allNighter.getStartAt())
+                        .endAt(allNighter.getEndAt())
+                        .duration(allNighter.getDuration())
+                        .build())
+                .toList();
+
     }
 }
