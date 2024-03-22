@@ -75,25 +75,21 @@ public class MissionService {
     }
 
     public List<MissionDto> getMissionTimeline(Long teamId) {
-        List<Long> userIds = userTeamRepository.findAllByTeamId(teamId).stream()
-                .map(UserTeam::getUser)
-                .map(User::getId)
-                .toList();
-
-        List<MissionDto> missionDtos = new ArrayList<>();
-        for (Long userId : userIds) {
-            UserTeam userTeam = userTeamRepository.findByUserIdAndHistoryTeamId(userId, teamId);
-            if (userTeam != null) {
-                List<MissionDto> missionsForUserTeam = missionRepository.findAllByUserTeamIdOrderByIssuedAtAsc(userTeam.getId())
-                        .stream()
-                        .map(MissionDto::fromEntity)
-                        .toList();
-                missionDtos.addAll(missionsForUserTeam);
-            }
+        // userTeam의 historyTeamId가 teamId와 같은 userTeam들을 조회
+        List<UserTeam> userTeams = userTeamRepository.findAllByHistoryTeamId(teamId);
+        if (userTeams.isEmpty()) {
+            throw new CommonException(ErrorCode.NOT_FOUND_TEAM);
         }
 
-        return missionDtos;
+        return userTeams.stream()
+                .map(userTeam -> missionRepository.findAllByUserTeamIdOrderByIssuedAtAsc(userTeam.getId())
+                        .stream()
+                        .map(MissionDto::fromEntity)
+                        .toList())
+                .flatMap(Collection::stream)
+                .toList();
     }
+
     @Transactional
     public void sendMission() {
         // 모든 살아있는(살아있는 유저가 한명이라도 들어가있는) 팀들을 조회
