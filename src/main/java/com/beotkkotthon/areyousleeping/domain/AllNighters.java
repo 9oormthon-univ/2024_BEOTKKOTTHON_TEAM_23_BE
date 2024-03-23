@@ -33,7 +33,7 @@ public class AllNighters {
     private Integer duration;
 
     @Builder
-    private AllNighters(UserTeam userTeam) {
+    public AllNighters(UserTeam userTeam) {
         this.userTeam = userTeam;
         this.startAt = LocalDateTime.now();
     }

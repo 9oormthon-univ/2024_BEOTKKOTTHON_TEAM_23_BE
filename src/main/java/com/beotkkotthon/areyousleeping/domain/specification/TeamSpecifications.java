@@ -23,13 +23,13 @@ public class TeamSpecifications {
             return cb.lessThan(root.get("currentNum"), root.get("maxNum"));
         };
     }
-    public static Specification<Team> isPublic(Boolean isPublic) {
+    public static Specification<Team> isSecret(Boolean isSecret) {
         return (root, query, cb) -> {
-            if (isPublic == null) return null;
-            if (isPublic) {
-                return cb.isFalse(root.get("isSecret"));
-            } else {
+            if (isSecret == null) return null;
+            if (isSecret) {
                 return cb.isTrue(root.get("isSecret"));
+            } else {
+                return cb.isFalse(root.get("isSecret"));
             }
         };
     }

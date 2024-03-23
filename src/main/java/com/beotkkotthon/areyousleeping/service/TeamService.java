@@ -47,7 +47,15 @@ public class TeamService {
             throw new CommonException(ErrorCode.ALREADY_JOINED_TEAM);
         }
         // Team 엔티티 생성 -> 저장
-        Team team = teamSaveDto.toEntity();
+        Team team = Team.builder().
+                title(teamSaveDto.title())
+                .maxNum(teamSaveDto.maxNum())
+                .targetTime(teamSaveDto.targetTime())
+                .isSecret(teamSaveDto.isSecret())
+                .password(teamSaveDto.password())
+                .category(teamSaveDto.category())
+                .description(teamSaveDto.description())
+                .build();
         team.addMember(); // 팀 생성 시 현재 인원수를 1로 설정
         team = teamRepository.save(team);
 
@@ -72,14 +80,14 @@ public class TeamService {
 
         return TeamResponseDto.fromEntity(team);
     }
-    public Map<String, Object> getTeams(Integer page, Integer size, String keyword, String category, Boolean isEmpty, Boolean isPublic) {
+    public Map<String, Object> getTeams(Integer page, Integer size, String keyword, String category, Boolean isEmpty, Boolean isSecret) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         Specification<Team> spec = Specification.where(null);
         if (keyword != null) spec = spec.and(TeamSpecifications.hasKeyword(keyword));
         if (category != null) spec = spec.and(TeamSpecifications.hasCategory(category));
         if (isEmpty != null) spec = spec.and(TeamSpecifications.isEmpty(isEmpty));
-        if (isPublic != null) spec = spec.and(TeamSpecifications.isPublic(isPublic));
+        if (isSecret != null) spec = spec.and(TeamSpecifications.isSecret(isSecret));
 
         Page<Team> teams = teamRepository.findAll(spec, pageable);
 

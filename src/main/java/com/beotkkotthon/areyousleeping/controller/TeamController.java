@@ -32,12 +32,12 @@ public class TeamController {
             @RequestParam(value="keyword", required = false) String keyword,
             @RequestParam(value="category", required = false) String category,
             @RequestParam(value="isEmpty", required = false) Boolean isEmpty,
-            @RequestParam(value="isPublic", required = false) Boolean isPublic,
+            @RequestParam(value="isSecret", required = false) Boolean isSecret,
             @RequestParam(value="page") Integer page,
             @RequestParam(value="size") Integer size
     ) {
         if (page >= 0 && size >= 0) {
-            return ResponseDto.ok(teamService.getTeams(page, size, keyword, category, isEmpty, isPublic));
+            return ResponseDto.ok(teamService.getTeams(page, size, keyword, category, isEmpty, isSecret));
         } else {
             throw new CommonException(ErrorCode.BAD_REQUEST_PARAMETER);
         }
