@@ -1,10 +1,12 @@
 package com.beotkkotthon.areyousleeping.service;
 
+import com.beotkkotthon.areyousleeping.domain.Achievement;
 import com.beotkkotthon.areyousleeping.domain.User;
 import com.beotkkotthon.areyousleeping.dto.request.UserUpdateDto;
 import com.beotkkotthon.areyousleeping.dto.response.UserDetailDto;
 import com.beotkkotthon.areyousleeping.exception.CommonException;
 import com.beotkkotthon.areyousleeping.exception.ErrorCode;
+import com.beotkkotthon.areyousleeping.repository.AchievementRepository;
 import com.beotkkotthon.areyousleeping.repository.UserRepository;
 import com.beotkkotthon.areyousleeping.utility.ImageUtil;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +18,16 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final AchievementRepository achievementRepository;
     private final ImageUtil imageUtil;
 
     public UserDetailDto readUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
-        return UserDetailDto.fromEntity(user);
+        Achievement latestAchievement = achievementRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId());
+
+        return UserDetailDto.fromEntity(user, latestAchievement);
     }
 
     @Transactional
