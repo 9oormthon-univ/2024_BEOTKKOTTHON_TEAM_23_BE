@@ -1,5 +1,6 @@
 package com.beotkkotthon.areyousleeping.domain;
 
+import com.beotkkotthon.areyousleeping.constants.Constants;
 import com.beotkkotthon.areyousleeping.dto.request.AuthSignUpDto;
 import com.beotkkotthon.areyousleeping.dto.type.EProvider;
 import com.beotkkotthon.areyousleeping.dto.type.ERole;
@@ -46,7 +47,7 @@ public class User {
     private String nickname="default_nickname";
 
     @Column(name = "profile_image_url", nullable = false)
-    private String profileImageUrl = "default_profile.png";
+    private String profileImageUrl = Constants.DEFAULT_IMAGE;
 
     /* User Status */
     @Column(name = "is_login", columnDefinition = "TINYINT(1)")
@@ -62,7 +63,7 @@ public class User {
         this.provider = provider;
         this.role = role;
         this.createdAt = LocalDateTime.now();
-        this.profileImageUrl = "default_profile.png";
+        this.profileImageUrl = Constants.DEFAULT_IMAGE;
         this.isLogin = false;
     }
 
