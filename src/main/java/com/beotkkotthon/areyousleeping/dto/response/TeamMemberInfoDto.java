@@ -20,10 +20,10 @@ public class TeamMemberInfoDto {
     private String profileImgUrl;
 
     @Builder
-    public TeamMemberInfoDto(UserTeam userTeam, User user, Achievement achievement) {
+    public TeamMemberInfoDto(UserTeam userTeam, User user, String title) {
 
         this.nickname = user.getNickname();
-        this.title = achievement.getTitle();
+        this.title = title;
         this.isActive = userTeam.getIsActive();
         this.isLeader = userTeam.getIsLeader();
         this.profileImgUrl = user.getProfileImageUrl();

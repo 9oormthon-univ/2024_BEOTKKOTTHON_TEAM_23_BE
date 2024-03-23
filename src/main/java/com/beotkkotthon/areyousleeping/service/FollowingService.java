@@ -70,8 +70,8 @@ public class FollowingService {
             User followingUser = following.getReceiver();
             Long followingUserId = followingUser.getId();
             Achievement latestAchievement = achievementRepository.findTopByUserIdOrderByCreatedAtDesc(followingUserId);
-            String latestAchievementTitle = (latestAchievement != null) ? latestAchievement.getTitle() : "잠만보"; // 칭호가 없는 경우를 대비한 null 체크
-            return new FollowingInfoDto(followingUser.getId(), followingUser.getNickname(), latestAchievementTitle);
+            String title = latestAchievement != null ? latestAchievement.getTitle() : null;
+            return new FollowingInfoDto(followingUser.getId(), followingUser.getNickname(), title);
         }).collect(Collectors.toList());
 
         return followingInfo;

@@ -155,11 +155,16 @@ public class UserTeamService {
 
             Achievement latestAchievement = achievementRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId());
 
-            teamMembersInfo.add(TeamMemberInfoDto.builder()
+            // latestAchievement가 null인 경우를 처리. 업적이 없는 경우 title을 null로 설정
+            String title = (latestAchievement != null) ? latestAchievement.getTitle() : null;
+
+            TeamMemberInfoDto teamMemberInfoDto = TeamMemberInfoDto.builder()
                     .userTeam(userTeam)
                     .user(user)
-                    .achievement(latestAchievement)
-                    .build());
+                    .title(title)
+                    .build();
+
+            teamMembersInfo.add(teamMemberInfoDto);
         }
 
         return teamMembersInfo;
