@@ -21,4 +21,7 @@ public interface UserTeamRepository extends JpaRepository<UserTeam, Long> {
     List<UserTeam> findAllByHistoryTeamId(Long historyTeamId);
 
     Long countByTeamIdAndIsActiveTrue(Long teamId);
+
+    List<UserTeam> findByTeamIdOrderByIdAsc(Long teamId);
+
 }

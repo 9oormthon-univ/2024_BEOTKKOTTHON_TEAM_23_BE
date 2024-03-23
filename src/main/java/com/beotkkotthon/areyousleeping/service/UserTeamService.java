@@ -6,12 +6,14 @@ import com.beotkkotthon.areyousleeping.exception.CommonException;
 import com.beotkkotthon.areyousleeping.exception.ErrorCode;
 import com.beotkkotthon.areyousleeping.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserTeamService {
@@ -64,9 +66,6 @@ public class UserTeamService {
     @Transactional
     public UserTeam leaveTeam(Long teamId, Long userId){
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
-
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM));
 
@@ -75,8 +74,29 @@ public class UserTeamService {
             throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
         }
 
-        removeUserTeamAndUpdateTeamNum(userTeam, team);
+        boolean isLeader = userTeam.getIsLeader(); // 팀을 떠나는 사용자가 리더인지 확인
+        if (isLeader){
+            // 팀 나가기를 요청한 유저가 방장인지 확인
+            // 방장이 나갔을 때 user_team_id가 가장 작은 멤버를 새로운 방장으로 설정
+            List<UserTeam> users = userTeamRepository.findByTeamIdOrderByIdAsc(teamId);
+            userTeam.changeLeader(false); // 기존 리더의 isLeader 상태를 false로 설정
 
+            // user_team_id가 가장 작은 사용자를 새로운 리더로 설정 (기존 리더 제외)
+            UserTeam newLeader = users.stream()
+                    .filter(u -> !u.getUser().getId().equals(userId))
+                    .min(Comparator.comparing(UserTeam::getId))
+                    .orElse(null);
+
+            if (newLeader != null) {
+                newLeader.changeLeader(true);
+                userTeamRepository.save(newLeader);
+            }
+        }
+
+        // 변경된 리더 상태 저장 및 팀 인원 수 감소와 팀 삭제 로직을 포함하는 메소드 호출
+        removeUserTeamAndUpdateTeamNum(userTeam, team, false); // 더 이상 여기에서 userTeam에 대한 변경을 저장하지 않음
+
+        // userTeam의 team을 null로 설정하고 저장하는 로직은 removeUserTeamAndUpdateTeamNum 메소드 내로 이동되었습니다.
         return userTeam;
     }
 
@@ -135,34 +155,13 @@ public class UserTeamService {
 
             Achievement latestAchievement = achievementRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId());
 
-            if (latestAchievement == null) {
-
-                // 칭호가 없는 경우, 기본값 설정
-                String defaultTitle = "잠만보";
-                String defaultContent = "기본값 내용";
-                Integer defaultDifficulty = 1;
-
-                Achievement defaultAchievement = Achievement.builder()
-                        .user(user)
-                        .title(defaultTitle)
-                        .content(defaultContent)
-                        .difficulty(defaultDifficulty)
-                        .build();
-
-                teamMembersInfo.add(TeamMemberInfoDto.builder()
-                        .userTeam(userTeam)
-                        .user(user)
-                        .achievement(defaultAchievement)
-                        .build());
-
-            } else {
-                teamMembersInfo.add(TeamMemberInfoDto.builder()
-                        .userTeam(userTeam)
-                        .user(user)
-                        .achievement(latestAchievement)
-                        .build());
-            }
+            teamMembersInfo.add(TeamMemberInfoDto.builder()
+                    .userTeam(userTeam)
+                    .user(user)
+                    .achievement(latestAchievement)
+                    .build());
         }
+
         return teamMembersInfo;
     }
 
@@ -194,21 +193,35 @@ public class UserTeamService {
             throw new CommonException(ErrorCode.BAD_REQUEST_PARAMETER);
         }
 
-        removeUserTeamAndUpdateTeamNum(userTeam, team);
+        removeUserTeamAndUpdateTeamNum(userTeam, team, true);
     }
 
+
     @Transactional
-    public void removeUserTeamAndUpdateTeamNum(UserTeam userTeam, Team team){
+    public void removeUserTeamAndUpdateTeamNum(UserTeam userTeam, Team team, boolean isSaveUserTeam){
 
         if(userTeam.getIsActive()){ // 밤샘 중이라면 밤샘 종료 업데이트 로직까지 수행
+
             userTeam.updateByQuit(); // userTeam의 team을 null로 설정
-            userTeamRepository.save(userTeam);
+
+            if (userTeam.getIsLeader()) { // 사용자가 리더인 경우 isLeader 상태 업데이트
+                userTeam.changeLeader(false); // 방장 상태를 false로 변경
+            }
+
             AllNighters allNighters = allNightersRepository.findByUserTeamId(userTeam.getId());
             allNighters.updateByEnd(); // 밤샘 종료 시간 업데이트
             allNightersRepository.save(allNighters);
+
         } else { // 밤샘중이 아니라면 그냥 userTeam의 team을 null로 설정하고 끝
             userTeam.updateByQuit();
-            userTeamRepository.save(userTeam);
+
+            if (userTeam.getIsLeader()) { // 사용자가 리더인 경우 isLeader 상태 업데이트
+                userTeam.changeLeader(false); // 방장 상태를 false로 변경
+            }
+        }
+
+        if (isSaveUserTeam) {
+            userTeamRepository.save(userTeam); // 여기에서 userTeam의 최종 상태를 저장
         }
 
         // team의 인원 수 감소
@@ -222,5 +235,6 @@ public class UserTeamService {
         }
 
     }
+
 
 }
