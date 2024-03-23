@@ -155,34 +155,13 @@ public class UserTeamService {
 
             Achievement latestAchievement = achievementRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId());
 
-            if (latestAchievement == null) {
-
-                // 칭호가 없는 경우, 기본값 설정
-                String defaultTitle = "잠만보";
-                String defaultContent = "기본값 내용";
-                Integer defaultDifficulty = 1;
-
-                Achievement defaultAchievement = Achievement.builder()
-                        .user(user)
-                        .title(defaultTitle)
-                        .content(defaultContent)
-                        .difficulty(defaultDifficulty)
-                        .build();
-
-                teamMembersInfo.add(TeamMemberInfoDto.builder()
-                        .userTeam(userTeam)
-                        .user(user)
-                        .achievement(defaultAchievement)
-                        .build());
-
-            } else {
-                teamMembersInfo.add(TeamMemberInfoDto.builder()
-                        .userTeam(userTeam)
-                        .user(user)
-                        .achievement(latestAchievement)
-                        .build());
-            }
+            teamMembersInfo.add(TeamMemberInfoDto.builder()
+                    .userTeam(userTeam)
+                    .user(user)
+                    .achievement(latestAchievement)
+                    .build());
         }
+
         return teamMembersInfo;
     }
 
