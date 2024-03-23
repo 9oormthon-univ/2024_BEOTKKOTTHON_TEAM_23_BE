@@ -30,12 +30,12 @@ public record UserDetailDto(
         String profileImageUrl
 
 ) {
-        public static UserDetailDto fromEntity(User user, Achievement achievement) {
+        public static UserDetailDto fromEntity(User user, String title) {
             return UserDetailDto.builder()
                     .id(user.getId())
                     .nickname(user.getNickname())
                     .provider(user.getProvider())
-                    .title(achievement.getTitle())
+                    .title(title)
                     .profileImageUrl(user.getProfileImageUrl())
                     .build();
         }

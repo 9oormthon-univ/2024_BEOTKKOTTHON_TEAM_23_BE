@@ -27,7 +27,10 @@ public class UserService {
 
         Achievement latestAchievement = achievementRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId());
 
-        return UserDetailDto.fromEntity(user, latestAchievement);
+        // latestAchievement가 null인 경우 title을 null로 설정
+        String title = (latestAchievement != null) ? latestAchievement.getTitle() : null;
+
+        return UserDetailDto.fromEntity(user, title);
     }
 
     @Transactional
