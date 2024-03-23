@@ -5,7 +5,8 @@ import lombok.Builder;
 @Builder
 public record ChatMessageResponseDto(
         String type,
-        String sender,
+        String senderNickname,
+        String senderProfileImage,
         String content,
         String sendTime) {
 }

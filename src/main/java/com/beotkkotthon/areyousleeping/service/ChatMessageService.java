@@ -51,22 +51,41 @@ public class ChatMessageService {
 
         ChatMessageResponseDto responseDto = ChatMessageResponseDto.builder()
                 .type(requestDto.type())
-                .sender(user.getNickname())
+                .senderNickname(user.getNickname())
+                .senderProfileImage(user.getProfileImageUrl())
                 .content(requestDto.content())
                 .sendTime(requestDto.sendTime())
                 .build();
         messagingTemplate.convertAndSend("/subscribe/team/" + teamId, responseDto);
     }
 
-    public ChatMessageListDto getChatMessages(String teamId) {
-
-        ChatMessageList chat = chatMessageListRepository.findById(teamId)
+    public ChatMessageListDto getChatMessages(String teamId, int page, int size) {
+        ChatMessageList chatMessageList = chatMessageListRepository.findById(teamId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM));
 
+        List<ChatMessage> sortedMessages = chatMessageList.getMessages()
+                .stream()
+                .sorted(Comparator.comparing(ChatMessage::getDate).reversed())
+                .collect(Collectors.toList());
+
+        // 실제 페이지 사이즈보다 하나 더 많은 데이터를 불러오기 위해 size + 1 사용 -> hasNext 계산을 위함
+        int start = page * size;
+        int end = Math.min((page + 1) * size + 1, sortedMessages.size()); // end 계산 시 +1
+
+        List<ChatMessage> paginatedMessages = sortedMessages.subList(start, Math.min(end, sortedMessages.size()));
+
+        boolean hasNext = paginatedMessages.size() > size;
+
+        List<ChatMessage> finalMessages = hasNext ? paginatedMessages.subList(0, size) : paginatedMessages;
+
+        List<ChatMessageResponseDto> messageDtos = convertToMessageDTOList(finalMessages);
+
         return ChatMessageListDto.builder()
-                .messageList(convertToMessageDTOList(chat.getMessages()))
+                .messageList(messageDtos)
+                .hasNext(hasNext)
                 .build();
     }
+
 
     private List<ChatMessage> sortMessagesByDate(ChatMessageList chat) {
         return chat.getMessages()
@@ -79,7 +98,10 @@ public class ChatMessageService {
         return messages.stream()
                 .map(msg -> ChatMessageResponseDto.builder()
                         .type(msg.getType())
-                        .sender(msg.getSender().getNickname())
+                        .senderNickname(userRepository.findById(msg.getSender().getId())
+                                .orElseThrow(()-> new CommonException(ErrorCode.NOT_FOUND_USER)).getNickname())
+                        .senderProfileImage(userRepository.findById(msg.getSender().getId())
+                                .orElseThrow(()-> new CommonException(ErrorCode.NOT_FOUND_USER)).getProfileImageUrl())
                         .content(msg.getContent())
                         .sendTime(msg.getDate().toString())
                         .build())

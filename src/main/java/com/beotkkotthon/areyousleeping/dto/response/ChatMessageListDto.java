@@ -6,5 +6,6 @@ import java.util.List;
 
 @Builder
 public record ChatMessageListDto (
-    List<ChatMessageResponseDto> messageList
+    List<ChatMessageResponseDto> messageList,
+    Boolean hasNext
 ){}
