@@ -29,8 +29,11 @@ public class ChatController {
 
     @GetMapping("/api/v1/chats/{teamId}/chat")
     @Operation(summary = "팀에서 오고갔던 메시지 조회", description = "채팅방을 잠시 벗어나있다가 다시 들어왔을 때, 지금까지 오고갔던 채팅 내역 전체를 불러옵니다.")
-    public ResponseDto<?> showBarMessages(@PathVariable String teamId){
-
-        return ResponseDto.ok(chatService.getChatMessages(teamId));
+    public ResponseDto<?> showTeamMessages(
+            @PathVariable String teamId,
+            @RequestParam(value="page") Integer page,
+            @RequestParam(value="size") Integer size
+    ){
+        return ResponseDto.ok(chatService.getChatMessages(teamId, page, size));
     }
 }

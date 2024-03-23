@@ -58,13 +58,24 @@ public class ChatMessageService {
         messagingTemplate.convertAndSend("/subscribe/team/" + teamId, responseDto);
     }
 
-    public ChatMessageListDto getChatMessages(String teamId) {
-
-        ChatMessageList chat = chatMessageListRepository.findById(teamId)
+    public ChatMessageListDto getChatMessages(String teamId, int page, int size) {
+        ChatMessageList chatMessageList = chatMessageListRepository.findById(teamId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM));
 
+        List<ChatMessage> sortedMessages = chatMessageList.getMessages()
+                .stream()
+                .sorted(Comparator.comparing(ChatMessage::getDate).reversed())
+                .collect(Collectors.toList());
+
+        // 페이지네이션 적용
+        int start = Math.min(page * size, sortedMessages.size());
+        int end = Math.min((page + 1) * size, sortedMessages.size());
+        List<ChatMessage> paginatedMessages = sortedMessages.subList(start, end);
+
+        List<ChatMessageResponseDto> messageDtos = convertToMessageDTOList(paginatedMessages);
+
         return ChatMessageListDto.builder()
-                .messageList(convertToMessageDTOList(chat.getMessages()))
+                .messageList(messageDtos)
                 .build();
     }
 
