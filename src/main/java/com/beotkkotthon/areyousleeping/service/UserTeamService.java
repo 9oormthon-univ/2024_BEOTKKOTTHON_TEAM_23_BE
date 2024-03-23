@@ -74,7 +74,7 @@ public class UserTeamService {
             throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
         }
 
-        boolean isLeader = userTeam.getIsLeader(); // 팀을 떠나는 사용자가 리더인지 확인
+        Boolean isLeader = userTeam.getIsLeader(); // 팀을 떠나는 사용자가 리더인지 확인
         if (isLeader){
             // 팀 나가기를 요청한 유저가 방장인지 확인
             // 방장이 나갔을 때 user_team_id가 가장 작은 멤버를 새로운 방장으로 설정
