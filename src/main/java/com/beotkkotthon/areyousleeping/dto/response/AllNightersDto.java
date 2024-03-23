@@ -6,14 +6,14 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 @Builder
 public record AllNightersDto(
-    Long id, // userTeamId
+    Long historyTeamId, // historyTeamId
     LocalDateTime startAt,
     LocalDateTime endAt,
     Integer duration
 ) {
     public static AllNightersDto fromEntity(AllNighters allNighters) {
         return AllNightersDto.builder()
-                .id(allNighters.getUserTeam().getId())
+                .historyTeamId(allNighters.getUserTeam().getId())
                 .startAt(allNighters.getStartAt())
                 .endAt(allNighters.getEndAt())
                 .duration(allNighters.getDuration())

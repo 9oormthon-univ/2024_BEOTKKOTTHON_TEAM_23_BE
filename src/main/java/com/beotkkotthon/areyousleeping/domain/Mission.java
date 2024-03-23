@@ -38,7 +38,7 @@ public class Mission {
     private String resultText = null;
 
     @Builder
-    private Mission(UserTeam userTeam, String content, LocalDateTime issuedAt, Boolean result, String resultImageUrl, String resultText) {
+    public Mission(UserTeam userTeam, String content, LocalDateTime issuedAt, Boolean result, String resultImageUrl, String resultText) {
         this.userTeam = userTeam;
         this.content = content;
         this.issuedAt = issuedAt;

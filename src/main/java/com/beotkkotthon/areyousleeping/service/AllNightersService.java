@@ -28,7 +28,7 @@ public class AllNightersService {
 
         List<AllNightersDto> allNightersDtos = allNightersList.stream()
                 .map(allNighter -> AllNightersDto.builder()
-                        .id(allNighter.getUserTeam().getId())
+                        .historyTeamId(allNighter.getUserTeam().getId())
                         .startAt(allNighter.getStartAt())
                         .endAt(allNighter.getEndAt())
                         .duration(allNighter.getDuration())
@@ -59,7 +59,7 @@ public class AllNightersService {
 
         return allNightersList.stream()
                 .map(allNighter -> AllNightersDto.builder()
-                        .id(allNighter.getUserTeam().getId())
+                        .historyTeamId(allNighter.getUserTeam().getHistoryTeamId())
                         .startAt(allNighter.getStartAt())
                         .endAt(allNighter.getEndAt())
                         .duration(allNighter.getDuration())
