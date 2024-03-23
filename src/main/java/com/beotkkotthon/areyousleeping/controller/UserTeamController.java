@@ -12,6 +12,7 @@ import com.beotkkotthon.areyousleeping.service.UserTeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +34,16 @@ public class UserTeamController {
     public ResponseDto<?> joinTeam(@PathVariable Long teamId, @UserId Long userId){
 
         UserTeam userTeam = userTeamService.joinTeam(teamId, userId);
-        UserTeamResponseDto userTeamResponseDto = new UserTeamResponseDto(userTeam);
-
+        UserTeamResponseDto userTeamResponseDto = UserTeamResponseDto.builder()
+                .userId(userTeam.getUser().getId())
+                .teamId(userTeam.getTeam().getId())
+                .historyTeamId(userTeam.getHistoryTeamId())
+                .isActive(userTeam.getIsActive())
+                .isLeader(userTeam.getIsActive())
+                .lastActiveAt(userTeam.getLastActiveAt())
+                .createdAt(userTeam.getCreatedAt())
+                .currentNum(userTeam.getTeam().getCurrentNum())
+                .build();
         return ResponseDto.ok(userTeamResponseDto);
     }
 

@@ -23,8 +23,10 @@ public class AchievementService {
     private final UserRepository userRepository;
     private final AllNightersRepository allNightersRepository;
 
-    public List<Achievement> getUserAchievements(Long userId) {
-        return achievementRepository.findByUserId(userId);
+    public List<AchievementDto> getUserAchievements(Long userId) {
+        return achievementRepository.findByUserId(userId).stream()
+                .map(AchievementDto::fromEntity)
+                .toList();
     }
 
     public List<AchievementDto> renewalAchievement(Long userId) {

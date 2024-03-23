@@ -2,11 +2,9 @@ package com.beotkkotthon.areyousleeping.controller;
 
 import com.beotkkotthon.areyousleeping.annotation.UserId;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
-import com.beotkkotthon.areyousleeping.dto.request.UserUpdateDto;
 import com.beotkkotthon.areyousleeping.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -27,15 +25,14 @@ public class UserController {
         return ResponseDto.ok(userService.readUser(userId));
     }
 
-    @PatchMapping(value = "", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(value = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "본인 정보 수정", description = "유저 정보를 수정합니다.")
     public ResponseDto<?> updateUser(
             @UserId Long userId,
-            @RequestPart(value = "message", required = false)
-            @Valid UserUpdateDto requestDto,
+            @RequestParam(required = false) String nickname,
             @RequestPart(value = "file", required = false)
             MultipartFile imgFile) {
-        userService.updateUser(userId, requestDto, imgFile);
+        userService.updateUser(userId, nickname, imgFile);
         return ResponseDto.ok(null);
     }
 

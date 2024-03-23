@@ -4,6 +4,7 @@ import com.beotkkotthon.areyousleeping.domain.AllNighters;
 import com.beotkkotthon.areyousleeping.dto.response.AllNightersDto;
 import com.beotkkotthon.areyousleeping.repository.AllNightersRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +13,9 @@ import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AllNightersService {
@@ -36,11 +39,15 @@ public class AllNightersService {
                 .toList();
 
         List<AllNighters> totalAllNightersList = allNightersRepository.findByUserId(userId);
-
-        int totalDuration = totalAllNightersList.stream()
+        log.info("total: {}", totalAllNightersList.stream()
                 .map(AllNighters::getDuration)
+                .filter(Objects::nonNull)
+                .toList());
+        Integer totalDuration = totalAllNightersList.stream()
+                .map(AllNighters::getDuration)
+                .filter(Objects::nonNull)
                 .reduce(0, Integer::sum);
-        int totalAllNighters = totalAllNightersList.size();
+        Integer totalAllNighters = totalAllNightersList.size();
 
         Map<String, Object> result = new HashMap<>();
         result.put("totalDuration", totalDuration);
@@ -73,6 +80,7 @@ public class AllNightersService {
 
         int totalDuration = allNightersList.stream()
                 .map(AllNighters::getDuration)
+                .filter(Objects::nonNull)
                 .reduce(0, Integer::sum);
         int totalAllNighters = allNightersList.size();
 

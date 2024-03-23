@@ -2,7 +2,6 @@ package com.beotkkotthon.areyousleeping.service;
 
 import com.beotkkotthon.areyousleeping.domain.Achievement;
 import com.beotkkotthon.areyousleeping.domain.User;
-import com.beotkkotthon.areyousleeping.dto.request.UserUpdateDto;
 import com.beotkkotthon.areyousleeping.dto.response.UserDetailDto;
 import com.beotkkotthon.areyousleeping.exception.CommonException;
 import com.beotkkotthon.areyousleeping.exception.ErrorCode;
@@ -34,7 +33,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(Long userId, UserUpdateDto requestDto, MultipartFile imgFile) {
+    public void updateUser(Long userId, String nickname, MultipartFile imgFile) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
 
@@ -42,7 +41,6 @@ public class UserService {
         if (imgFile != null && !imgFile.isEmpty()) {
             profileImageName = imageUtil.uploadProfileImageFile(imgFile, userId);
         }
-        String nickname = (requestDto != null) ? requestDto.nickname() : null;
 
         // 이미지 파일과 닉네임이 모두 제공된 경우
         if (profileImageName != null && nickname != null) {
