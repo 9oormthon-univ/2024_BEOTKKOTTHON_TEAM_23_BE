@@ -31,15 +31,19 @@ public class Achievement {
     @Column(name = "difficulty", nullable = false)
     private Integer difficulty;
 
+    @Column(name = "achievement_image_url", nullable = true)
+    private String achievementImageUrl;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Builder
-    public Achievement(User user, String title, String content, Integer difficulty) {
+    public Achievement(User user, String title, String content, Integer difficulty, String achievementImageUrl) {
         this.user = user;
         this.title = title;
         this.content = content;
         this.difficulty = difficulty;
+        this.achievementImageUrl = achievementImageUrl;
         this.createdAt = LocalDateTime.now();
     }
 }
