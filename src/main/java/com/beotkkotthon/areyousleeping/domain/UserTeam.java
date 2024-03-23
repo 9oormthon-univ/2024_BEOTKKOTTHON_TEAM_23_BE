@@ -42,7 +42,7 @@ public class UserTeam {
     private LocalDateTime createdAt;
 
     @Builder
-    private UserTeam(User user, Team team, Long historyTeamId, Boolean isLeader) {
+    public UserTeam(User user, Team team, Long historyTeamId, Boolean isLeader) {
         this.user = user;
         this.team = team;
         this.historyTeamId = historyTeamId;

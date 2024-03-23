@@ -47,7 +47,7 @@ public class Team {
     private LocalDateTime createdAt;
 
     @Builder
-    private Team(String title, Integer maxNum, Integer currentNum, Integer targetTime, Boolean isSecret, String password, String category, String description) {
+    public Team(String title, Integer maxNum, Integer currentNum, Integer targetTime, Boolean isSecret, String password, String category, String description) {
         this.title = title;
         this.maxNum = maxNum;
         this.currentNum = currentNum;
