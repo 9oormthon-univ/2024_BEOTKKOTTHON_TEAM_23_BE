@@ -25,9 +25,7 @@ public class AchievementController {
     @Operation(summary = "유저의 칭호 조회", description = "해당 유저의 id를 받아 획득한 칭호 모두를 조회합니다.")
     public ResponseDto<?> getUserAchievement(@UserId Long userId){
 
-        List<Achievement> achievementList = achievementService.getUserAchievements(userId);
-
-        return ResponseDto.ok(achievementList);
+        return ResponseDto.ok(achievementService.getUserAchievements(userId));
     }
 
     @PostMapping("/renewal")

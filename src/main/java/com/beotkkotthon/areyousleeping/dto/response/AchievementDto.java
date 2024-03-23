@@ -1,10 +1,12 @@
 package com.beotkkotthon.areyousleeping.dto.response;
 
 import com.beotkkotthon.areyousleeping.domain.Achievement;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
 @Builder
+@Schema(name = "AchievementDto", description = "업적 정보")
 public record AchievementDto(
         Long id,
         String title,

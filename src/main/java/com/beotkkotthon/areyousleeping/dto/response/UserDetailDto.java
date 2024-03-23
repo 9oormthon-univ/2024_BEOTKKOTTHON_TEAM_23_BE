@@ -1,6 +1,5 @@
 package com.beotkkotthon.areyousleeping.dto.response;
 
-import com.beotkkotthon.areyousleeping.domain.Achievement;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.beotkkotthon.areyousleeping.domain.User;
 import com.beotkkotthon.areyousleeping.dto.type.EProvider;
@@ -9,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
+@Schema(name = "UserDetailDto", description = "유저 상세 정보 조회 Dto")
 public record UserDetailDto(
         @Schema(description = "유저 ID", example = "1")
         @NotNull(message = "유저 ID가 없습니다.")
@@ -23,7 +23,7 @@ public record UserDetailDto(
         EProvider provider,
 
         @Schema(description="칭호", example="잠만보, 올빼미")
-        String title,
+        String AchievementTitle,
 
         @JsonProperty("profile_image_url") @Schema(description = "프로필 이미지 URL", example = "https://emodiary.s3.ap-northeast-2.amazonaws.com/profile/1.png")
         @NotNull(message = "프로필 이미지가 없습니다.")
@@ -35,7 +35,7 @@ public record UserDetailDto(
                     .id(user.getId())
                     .nickname(user.getNickname())
                     .provider(user.getProvider())
-                    .title(title)
+                    .AchievementTitle(title)
                     .profileImageUrl(user.getProfileImageUrl())
                     .build();
         }

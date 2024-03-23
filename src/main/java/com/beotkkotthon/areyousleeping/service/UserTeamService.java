@@ -160,11 +160,12 @@ public class UserTeamService {
             String title = (latestAchievement != null) ? latestAchievement.getTitle() : null;
 
             TeamMemberInfoDto teamMemberInfoDto = TeamMemberInfoDto.builder()
-                    .userTeam(userTeam)
-                    .user(user)
+                    .isActive(userTeam.getIsActive())
+                    .isLeader(userTeam.getIsLeader())
+                    .nickname(user.getNickname())
+                    .profileImgUrl(user.getProfileImageUrl())
                     .title(title)
                     .build();
-
             teamMembersInfo.add(teamMemberInfoDto);
         }
 

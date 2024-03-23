@@ -1,11 +1,12 @@
 package com.beotkkotthon.areyousleeping.dto.response;
 
 import com.beotkkotthon.areyousleeping.domain.Mission;
-import com.beotkkotthon.areyousleeping.domain.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
 @Builder
+@Schema(name = "MissionDto", description = "발행된 미션과 관련된 유저 정보")
 public record MissionDto(
         Long missionId,
         Long userTeamId,
