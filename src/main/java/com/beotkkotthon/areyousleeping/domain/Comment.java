@@ -36,10 +36,11 @@ public class Comment {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Comment(Post post, User user, String commentContent, LocalDateTime createdAt){
+    public Comment(Post post, User user, String commentContent){
         this.post = post;
         this.user = user;
         this.commentContent = commentContent;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }
