@@ -32,6 +32,9 @@ public class Comment {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @Builder
     public Comment(Post post, User user, String commentContent, LocalDateTime createdAt){
         this.post = post;

@@ -5,10 +5,9 @@ import com.beotkkotthon.areyousleeping.dto.request.PostCreateDto;
 import com.beotkkotthon.areyousleeping.dto.request.PostUpdateDto;
 import com.beotkkotthon.areyousleeping.service.PostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/post")
 public class PostController {
