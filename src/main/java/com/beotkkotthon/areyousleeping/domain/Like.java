@@ -11,32 +11,28 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "comment")
-public class Comment {
+@Table(name = "like")
+public class Like {
     @Id
-    @GeneratedValue
-    @Column(name="comment_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="like_id")
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "comment_content")
-    private String commentContent;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="post_id", nullable = false)
+    private Post post;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Builder
-    public Comment(Post post, User user, String commentContent, LocalDateTime createdAt){
-        this.post = post;
+    public Like(User user, Post post, LocalDateTime createdAt){
         this.user = user;
-        this.commentContent = commentContent;
+        this.post = post;
         this.createdAt = createdAt;
     }
 }

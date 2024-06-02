@@ -1,10 +1,10 @@
 package com.beotkkotthon.areyousleeping.repository;
 
-import com.beotkkotthon.areyousleeping.domain.Board;
+import com.beotkkotthon.areyousleeping.domain.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface BoardRepository extends JpaRepository<Board,Long>, JpaSpecificationExecutor<Board> {
+public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificationExecutor<Post> {
 }
