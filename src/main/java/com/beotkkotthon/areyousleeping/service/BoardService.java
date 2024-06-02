@@ -2,7 +2,11 @@ package com.beotkkotthon.areyousleeping.service;
 
 import com.beotkkotthon.areyousleeping.domain.Board;
 import com.beotkkotthon.areyousleeping.domain.specification.BoardSpecifications;
+import com.beotkkotthon.areyousleeping.dto.request.BoardCreateDto;
+import com.beotkkotthon.areyousleeping.dto.request.BoardUpdateDto;
 import com.beotkkotthon.areyousleeping.dto.response.BoardResponseDto;
+import com.beotkkotthon.areyousleeping.exception.CommonException;
+import com.beotkkotthon.areyousleeping.exception.ErrorCode;
 import com.beotkkotthon.areyousleeping.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,12 +25,12 @@ import java.util.stream.Collectors;
 public class BoardService {
     private final BoardRepository boardRepository;
 
-    public Board createBoard(BoardResponseDto boardResponseDto) {
+    public Board createBoard(BoardCreateDto boardCreateDto) {
         return boardRepository.save(
                 Board.builder()
-                        .title(boardResponseDto.title())
-                        .content(boardResponseDto.content())
-                        .user(boardResponseDto.user())
+                        .title(boardCreateDto.title())
+                        .content(boardCreateDto.content())
+                        .user(boardCreateDto.user())
                         .build());
     }
 
@@ -48,6 +52,16 @@ public class BoardService {
     }
 
     public void deleteBoard(Long boardId) {
-        boardRepository.deleteById(boardId);
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_BOARD));
+        boardRepository.delete(board);
+    }
+
+    public Board updateBoard(Long boardId, BoardUpdateDto boardUpdateDto) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_BOARD));
+        board.update(boardUpdateDto.title(), boardUpdateDto.content());
+
+        return boardRepository.save(board);
     }
 }
