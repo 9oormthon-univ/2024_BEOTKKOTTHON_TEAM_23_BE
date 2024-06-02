@@ -53,4 +53,12 @@ public class CommentService {
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_COMMENT));
         commentRepository.delete(comment);
     }
+    public Comment updateComment(Long commentId, CommentCreateDto commentCreateDto) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_COMMENT));
+        comment.update(
+                commentCreateDto.commentContent()
+        );
+        return commentRepository.save(comment);
+    }
 }

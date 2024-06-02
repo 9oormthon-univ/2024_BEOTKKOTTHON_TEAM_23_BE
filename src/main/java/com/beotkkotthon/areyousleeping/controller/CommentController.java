@@ -29,4 +29,8 @@ public class CommentController {
         commentService.deleteComment(commentId);
         return ResponseDto.ok(null);
     }
+    @PatchMapping("/{commentId}")
+    public ResponseDto<?> updateComment(@PathVariable Long commentId, @RequestBody CommentCreateDto commentCreateDto) {
+        return ResponseDto.ok(commentService.updateComment(commentId, commentCreateDto));
+    }
 }
