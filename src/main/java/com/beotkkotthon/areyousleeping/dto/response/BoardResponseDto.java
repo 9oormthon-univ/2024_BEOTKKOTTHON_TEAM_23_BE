@@ -5,15 +5,15 @@ import com.beotkkotthon.areyousleeping.domain.User;
 import lombok.Builder;
 
 @Builder
-public record BoardDto(
+public record BoardResponseDto(
         String title,
         String content,
         User user,
         String createdAt,
         String updatedAt
 ) {
-    public static BoardDto fromEntity(Board board) {
-        return BoardDto.builder()
+    public static BoardResponseDto fromEntity(Board board) {
+        return BoardResponseDto.builder()
                 .title(board.getTitle())
                 .content(board.getContent())
                 .user(board.getUser())
