@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -33,11 +32,19 @@ public class Comment {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @Builder
-    public Comment(Post post, User user, String commentContent, LocalDateTime createdAt){
+    public Comment(Post post, User user, String commentContent){
         this.post = post;
         this.user = user;
         this.commentContent = commentContent;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+    public void update(String commentContent){
+        this.commentContent = commentContent;
+        this.updatedAt = LocalDateTime.now();
     }
 }
