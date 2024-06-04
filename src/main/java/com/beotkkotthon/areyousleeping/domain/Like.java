@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "like")
+@Table(name = "user_like")
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
