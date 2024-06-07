@@ -3,6 +3,7 @@ package com.beotkkotthon.areyousleeping.service;
 import com.beotkkotthon.areyousleeping.domain.Report;
 import com.beotkkotthon.areyousleeping.domain.User;
 import com.beotkkotthon.areyousleeping.dto.request.UserReportRequestDto;
+import com.beotkkotthon.areyousleeping.dto.response.UserReportResponseDto;
 import com.beotkkotthon.areyousleeping.exception.CommonException;
 import com.beotkkotthon.areyousleeping.exception.ErrorCode;
 import com.beotkkotthon.areyousleeping.repository.ReportRepository;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class ReportService {
     private final ReportRepository reportRepository;
 
     @Transactional
-    public Report reportUser(Long userId,UserReportRequestDto userReportRequestDto){
+    public UserReportResponseDto reportUser(Long userId, UserReportRequestDto userReportRequestDto){
 
         // 신고자 조회
         User reporter = userRepository.findById(userId)
@@ -51,17 +53,16 @@ public class ReportService {
 
         reportRepository.save(report);
 
-        // 유저의 신고를 10명이상에게 받을 시 추가 처리
+
+        // 유저의 신고를 10명이상에게 받을 시 user의 isReported 필드를 true로 설정
         List<Report> reports = reportRepository.findByReportedUser(reportedUser);
         if(reports.size()>=10){
-            blockUser(reportedUser);
+            reportedUser.setReported(true);
+            userRepository.save(reportedUser);
         }
 
-        return report;
+        return UserReportResponseDto.fromEntity(report);
     }
 
-    private void blockUser(User user){
-
-    }
 
 }
