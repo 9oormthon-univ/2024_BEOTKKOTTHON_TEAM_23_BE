@@ -64,7 +64,6 @@ public class UserTeam {
     public void updateByQuit() {
         this.isActive = false;
         this.team = null;
-        this.isLeader=false;
     }
 
     public void changeLeader(boolean isLeader){
