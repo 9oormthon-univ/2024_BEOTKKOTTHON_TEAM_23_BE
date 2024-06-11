@@ -21,27 +21,40 @@ public class AchievementRate {
     private User user;
 
     @Column(name = "allnight_count")
-    private Long allnightCount;
+    private Integer allnightCount;
 
     @Column(name = "allnight_total")
     private Long allnightTotal;
 
     @Column(name = "ideal_allnight_count")
-    private Long idealAllnightCount;
+    private Integer idealAllnightCount;
 
     @Column(name = "leader_allnight_total")
     private Long leaderAllnightTotal;
 
     @Column(name = "alone_allnight_count")
-    private Long aloneAllnightCount;
+    private Integer aloneAllnightCount;
+
+    @Column(name = "continuous_allnight_count")
+    private Integer continuousAllnightCount;
 
     @Builder
-    public AchievementRate(User user, Long allnightCount, Long allnightTotal, Long idealAllnightCount, Long leaderAllnightTotal, Long aloneAllnightCount){
+    public AchievementRate(User user, Integer allnightCount, Long allnightTotal, Integer idealAllnightCount, Long leaderAllnightTotal, Integer aloneAllnightCount, Integer continuousAllnightCount){
         this.user = user;
         this.allnightCount = allnightCount;
         this.allnightTotal = allnightTotal;
         this.idealAllnightCount = idealAllnightCount;
         this.leaderAllnightTotal = leaderAllnightTotal;
         this.aloneAllnightCount = aloneAllnightCount;
+        this.continuousAllnightCount = continuousAllnightCount;
+    }
+
+    public void update(Integer allnightCount, Long allnightTotal, Integer idealAllnightCount, Long leaderAllnightTotal, Integer aloneAllnightCount, Integer continuousAllnightCount){
+        this.allnightCount = allnightCount;
+        this.allnightTotal = allnightTotal;
+        this.idealAllnightCount = idealAllnightCount;
+        this.leaderAllnightTotal = leaderAllnightTotal;
+        this.aloneAllnightCount = aloneAllnightCount;
+        this.continuousAllnightCount = continuousAllnightCount;
     }
 }
