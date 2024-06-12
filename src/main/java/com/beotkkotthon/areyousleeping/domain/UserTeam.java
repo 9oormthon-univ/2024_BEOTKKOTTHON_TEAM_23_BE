@@ -38,6 +38,9 @@ public class UserTeam {
     @Column(name = "last_active_at", nullable = true)
     private LocalDateTime lastActiveAt = null;
 
+    @Column(name = "continue_mission_failed_count", nullable = true)
+    private Integer continueMissionFailedCount = 0;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -50,6 +53,7 @@ public class UserTeam {
         this.isLeader = isLeader;
         this.lastActiveAt = null;
         this.createdAt = LocalDateTime.now();
+        this.continueMissionFailedCount = 0;
     }
 
     public void updateByStart(Boolean isActive) {
@@ -58,7 +62,7 @@ public class UserTeam {
     }
 
     public void updateByEnd(Boolean isActive) {
-        this.isActive = isActive;
+        this.isActive = false;
     }
 
     public void updateByQuit() {
@@ -68,6 +72,10 @@ public class UserTeam {
 
     public void changeLeader(boolean isLeader){
         this.isLeader = isLeader;
+    }
+
+    public void updateFailCount(){
+        this.continueMissionFailedCount++;
     }
 
 }
