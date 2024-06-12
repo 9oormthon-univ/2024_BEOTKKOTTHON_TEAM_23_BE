@@ -1,6 +1,7 @@
 package com.beotkkotthon.areyousleeping.service;
 
 import com.beotkkotthon.areyousleeping.domain.*;
+import com.beotkkotthon.areyousleeping.dto.response.AchievementRateDto;
 import com.beotkkotthon.areyousleeping.dto.response.TeamMemberInfoDto;
 import com.beotkkotthon.areyousleeping.dto.type.EAchievement;
 import com.beotkkotthon.areyousleeping.exception.CommonException;
@@ -84,8 +85,13 @@ public class UserTeamService {
         if (userTeam.getIsActive()) {
             // 밤샘 참여중이라면, 밤샘 종료 후 팀 나가기
             UserTeam lastUserTeam = userTeamRepository.findAllByUserIdOrderByCreatedAtDesc(userId).get(1);
-            updateAchievementRate(userId, userTeam, lastUserTeam, team.getCurrentNum());
-            renewalAchievements(userId);
+            achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, team.getCurrentNum());
+
+            User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+            AchievementRateDto achievementRateDto = AchievementRateDto.fromEntity(achievementRateRepository.findByUserId(userId));
+            achievementRepository.findByUserId(userId).forEach(achievement ->
+                    achievement.renewalAchievements(user, achievementRateDto)
+            );
             userTeam.updateByQuit();
         }
 
@@ -134,6 +140,19 @@ public class UserTeamService {
                         .build());
             } else {
                 userTeam.updateByEnd(isActive); // 밤샘 종료
+                UserTeam lastUserTeam = userTeamRepository.findAllByUserIdOrderByCreatedAtDesc(userId).get(1);
+                Integer teamUsersCount = teamRepository.findById(teamId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM)).getCurrentNum();
+
+                achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, teamUsersCount);
+
+                User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+                achievementRepository.findByUserId(userId).forEach(achievement ->
+                        achievement.renewalAchievements(user,
+                                AchievementRateDto.fromEntity(
+                                        achievementRateRepository.findByUserId(userId)
+                                )
+                        )
+                );
                 AllNighters allNighters = allNightersRepository.findByUserTeamId(userTeam.getId());
                 allNighters.updateByEnd(); // 밤샘 종료 시간 업데이트(끝 시간 - 시작시간 = 밤샘 시간: Duration)
                 allNightersRepository.save(allNighters);
@@ -225,10 +244,15 @@ public class UserTeamService {
         if (userTeam.getIsActive()) {
             // 밤샘 참여중이라면, 밤샘 종료 후 팀 나가기
             UserTeam lastUserTeam = userTeamRepository.findAllByUserIdOrderByCreatedAtDesc(userId).get(1);
-            updateAchievementRate(userId, userTeam, lastUserTeam, team.getCurrentNum());
-            renewalAchievements(userId);
+            achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, team.getCurrentNum());
 
-            userTeam.updateByQuit(); // userTeam의 team을 null로 설정
+            User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+            AchievementRateDto achievementRateDto = AchievementRateDto.fromEntity(achievementRateRepository.findByUserId(userId));
+            achievementRepository.findByUserId(userId).forEach(achievement ->
+                    achievement.renewalAchievements(user, achievementRateDto)
+            );
+
+            userTeam.updateByQuit();
 
             if (userTeam.getIsLeader()) { // 사용자가 리더인 경우 isLeader 상태 업데이트
                 userTeam.changeLeader(false); // 방장 상태를 false로 변경
@@ -260,137 +284,5 @@ public class UserTeamService {
             teamRepository.save(team);
         }
 
-    }
-
-    @Transactional
-    public void updateAchievementRate(Long userId, UserTeam userTeam, UserTeam lastUserTeam, Integer teamUsersCount) {
-
-        AchievementRate achivementRates = achievementRateRepository.findByUserId(userId);
-        int addedAllnightCount = 0;
-        long addedAllnightTotal = 0L;
-        int addedIdealAllnightCount = 0;
-        long addedLeaderAllnightTotal = 0L;
-        int addedAloneAllnightCount = 0;
-        int addedContinuousAllnightCount = 0;
-
-        addedAllnightTotal += Duration.between(userTeam.getLastActiveAt(),LocalDateTime.now()).toMinutes();
-
-        if(Duration.between(lastUserTeam.getLastActiveAt(), userTeam.getLastActiveAt()).toHours() > 12) {
-            addedAllnightCount = 1;
-        }
-
-        if(userTeam.getIsLeader()) {
-            addedLeaderAllnightTotal += Duration.between(userTeam.getLastActiveAt(),LocalDateTime.now()).toMinutes();
-        }
-
-        if(Duration.between(userTeam.getLastActiveAt(),LocalDateTime.now()).toHours() > 6) {
-            addedIdealAllnightCount = 1;
-        }
-
-        if(teamUsersCount == 1) {
-            addedAloneAllnightCount = 1;
-        }
-
-        if(lastUserTeam.getIsActive() && userTeam.getIsActive() && Duration.between(lastUserTeam.getLastActiveAt(), userTeam.getLastActiveAt()).toHours() > 12) {
-            addedContinuousAllnightCount = 1;
-        }
-
-
-        achivementRates.update(achivementRates.getAllnightCount() + addedAllnightCount,
-                achivementRates.getAllnightTotal() + addedAllnightTotal,
-                achivementRates.getIdealAllnightCount() + addedIdealAllnightCount,
-                achivementRates.getLeaderAllnightTotal() + addedLeaderAllnightTotal,
-                achivementRates.getAloneAllnightCount() + addedAloneAllnightCount,
-                achivementRates.getContinuousAllnightCount() + addedContinuousAllnightCount);
-
-        achievementRateRepository.save(achivementRates);
-    }
-    public void renewalAchievements(Long userId){
-        AchievementRate achievementRate = achievementRateRepository.findByUserId(userId);
-        List<Achievement> achievements = achievementRepository.findByUserId(userId);
-        List<Achievement> newAchievements = new ArrayList<>();
-
-        // 잠만보 칭호 수여 로직. 이미 갖고있는 잠만보 칭호가 없고 && 밤샘 참여 횟수가 1회 이상이라면 수여
-        if (achievements.stream().noneMatch(a -> a.getTitle().equals(EAchievement.JAMMANBO.getTitle())) && achievementRate.getAllnightCount() >= 1) {
-            newAchievements.add(Achievement.builder()
-                    .user(userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER)))
-                    .title(EAchievement.JAMMANBO.getTitle())
-                    .content(EAchievement.JAMMANBO.getContent())
-                    .difficulty(EAchievement.JAMMANBO.getDifficulty())
-                    .achievementImageUrl("https://areyousleeping.s3.ap-northeast-2.amazonaws.com/achievement/achievement_1.png")
-                    .build());
-        }
-        // 올빼미 칭호 수여 로직. 이미 갖고있는 올빼미 칭호가 없고 && 밤샘 참여 10시간 이상
-        if (achievements.stream().noneMatch(a -> a.getTitle().equals(EAchievement.OWL.getTitle())) && TimeUnit.MINUTES.toHours(achievementRate.getAllnightTotal()) >= 10) {
-            newAchievements.add(Achievement.builder()
-                    .user(userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER)))
-                    .title(EAchievement.OWL.getTitle())
-                    .content(EAchievement.OWL.getContent())
-                    .difficulty(EAchievement.OWL.getDifficulty())
-                    .achievementImageUrl("https://areyousleeping.s3.ap-northeast-2.amazonaws.com/achievement/achievement_2.png")
-                    .build());
-        }
-        // 낮밤이 바뀐자 수여 로직. 이미 갖고있는 낮밤이 바뀐자 칭호가 없고 && 연속 밤샘 4일 이상
-        if (achievements.stream().noneMatch(a -> a.getTitle().equals(EAchievement.DAYANDNIGHTCHANGER.getTitle())) && achievementRate.getContinuousAllnightCount() >= 4) {
-            newAchievements.add(Achievement.builder()
-                    .user(userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER)))
-                    .title(EAchievement.DAYANDNIGHTCHANGER.getTitle())
-                    .content(EAchievement.DAYANDNIGHTCHANGER.getContent())
-                    .difficulty(EAchievement.DAYANDNIGHTCHANGER.getDifficulty())
-                    .achievementImageUrl("https://areyousleeping.s3.ap-northeast-2.amazonaws.com/achievement/achievement_3.png")
-                    .build());
-        }
-        // 밤의 수호자 수여 로직. 이미 갖고있는 밤의 수호자 칭호가 없고 && 밤샘 총 시간 50시간 이상
-        if (achievements.stream().noneMatch(a -> a.getTitle().equals(EAchievement.GURDIANOFNIGHT.getTitle())) && TimeUnit.MINUTES.toHours(achievementRate.getAllnightTotal()) >= 50) {
-            newAchievements.add(Achievement.builder()
-                    .user(userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER)))
-                    .title(EAchievement.GURDIANOFNIGHT.getTitle())
-                    .content(EAchievement.GURDIANOFNIGHT.getContent())
-                    .difficulty(EAchievement.GURDIANOFNIGHT.getDifficulty())
-                    .achievementImageUrl("https://areyousleeping.s3.ap-northeast-2.amazonaws.com/achievement/achievement_4.png")
-                    .build());
-        }
-        // 밤샘 마스터 수여 로직. 이미 갖고있는 밤샘 마스터 칭호가 없고 && 최소 6시간 이상 밤샘을 채운 횟수가 10회 이상
-        if (achievements.stream().noneMatch(a -> a.getTitle().equals(EAchievement.ALLNIGHTMASTER.getTitle())) && achievementRate.getIdealAllnightCount() >= 10) {
-            newAchievements.add(Achievement.builder()
-                    .user(userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER)))
-                    .title(EAchievement.ALLNIGHTMASTER.getTitle())
-                    .content(EAchievement.ALLNIGHTMASTER.getContent())
-                    .difficulty(EAchievement.ALLNIGHTMASTER.getDifficulty())
-                    .achievementImageUrl("https://areyousleeping.s3.ap-northeast-2.amazonaws.com/achievement/achievement_5.png")
-                    .build());
-        }
-        // 고독한 밤샘가 수여 로직. 이미 갖고있는 고독한 밤샘가 칭호가 없고 && 1인 밤샘 5번 이상
-        if (achievements.stream().noneMatch(a -> a.getTitle().equals(EAchievement.LONELYALLNIGHTER.getTitle())) && achievementRate.getAloneAllnightCount() >= 5) {
-            newAchievements.add(Achievement.builder()
-                    .user(userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER)))
-                    .title(EAchievement.LONELYALLNIGHTER.getTitle())
-                    .content(EAchievement.LONELYALLNIGHTER.getContent())
-                    .difficulty(EAchievement.LONELYALLNIGHTER.getDifficulty())
-                    .achievementImageUrl("https://areyousleeping.s3.ap-northeast-2.amazonaws.com/achievement/achievement_6.png")
-                    .build());
-        }
-        // 밤을 다스리는 자 수여 로직. 이미 갖고있는 밤을 다스리는 자 칭호가 없고 && 방장으로 참여한 밤샘 총시간 50시간 이상
-        if (achievements.stream().noneMatch(a -> a.getTitle().equals(EAchievement.GOVERNEROFNIGHT.getTitle())) && TimeUnit.MINUTES.toHours(achievementRate.getLeaderAllnightTotal()) >= 50) {
-            newAchievements.add(Achievement.builder()
-                    .user(userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER)))
-                    .title(EAchievement.GOVERNEROFNIGHT.getTitle())
-                    .content(EAchievement.GOVERNEROFNIGHT.getContent())
-                    .difficulty(EAchievement.GOVERNEROFNIGHT.getDifficulty())
-                    .achievementImageUrl("https://areyousleeping.s3.ap-northeast-2.amazonaws.com/achievement/achievement_7.png")
-                    .build());
-        }
-        // 불면의 달인 수여 로직. 이미 갖고있는 불면의 달인 칭호가 없고 && 밤샘 총시간 100시간
-        if (achievements.stream().noneMatch(a -> a.getTitle().equals(EAchievement.SLEEPLESSMASTER.getTitle())) && TimeUnit.MINUTES.toHours(achievementRate.getAllnightTotal()) >= 100) {
-            newAchievements.add(Achievement.builder()
-                    .user(userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER)))
-                    .title(EAchievement.SLEEPLESSMASTER.getTitle())
-                    .content(EAchievement.SLEEPLESSMASTER.getContent())
-                    .difficulty(EAchievement.SLEEPLESSMASTER.getDifficulty())
-                    .achievementImageUrl("https://areyousleeping.s3.ap-northeast-2.amazonaws.com/achievement/achievement_8.png")
-                    .build());
-        }
-
-        achievementRepository.saveAll(newAchievements);
     }
 }
