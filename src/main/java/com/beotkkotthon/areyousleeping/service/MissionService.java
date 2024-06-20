@@ -1,19 +1,16 @@
 package com.beotkkotthon.areyousleeping.service;
 
 import com.beotkkotthon.areyousleeping.constants.Constants;
-import com.beotkkotthon.areyousleeping.domain.Mission;
-import com.beotkkotthon.areyousleeping.domain.Team;
-import com.beotkkotthon.areyousleeping.domain.User;
-import com.beotkkotthon.areyousleeping.domain.UserTeam;
+import com.beotkkotthon.areyousleeping.domain.*;
 import com.beotkkotthon.areyousleeping.domain.nosql.ChatMessage;
 import com.beotkkotthon.areyousleeping.dto.request.MissionImageDto;
 import com.beotkkotthon.areyousleeping.dto.request.MissionTextDto;
+import com.beotkkotthon.areyousleeping.dto.response.AchievementRateDto;
 import com.beotkkotthon.areyousleeping.dto.response.ChatMessageResponseDto;
 import com.beotkkotthon.areyousleeping.dto.response.MissionDto;
 import com.beotkkotthon.areyousleeping.exception.CommonException;
 import com.beotkkotthon.areyousleeping.exception.ErrorCode;
-import com.beotkkotthon.areyousleeping.repository.MissionRepository;
-import com.beotkkotthon.areyousleeping.repository.UserTeamRepository;
+import com.beotkkotthon.areyousleeping.repository.*;
 import com.beotkkotthon.areyousleeping.utility.ImageUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +32,10 @@ public class MissionService {
     private final SimpMessagingTemplate messagingTemplate;
     private final MissionRepository missionRepository;
     private final UserTeamRepository userTeamRepository;
+    private final UserRepository userRepository;
+    private final TeamRepository teamRepository;
+    private final AchievementRateRepository achievementRateRepository;
+    private final AchievementRepository achievementRepository;
     private ScheduledExecutorService scheduler;
     private final ImageUtil imageUtil;
 
@@ -57,6 +58,26 @@ public class MissionService {
                     userTeamRepository.findByUserIdAndTeamId(userId, teamId).getId()
             );
             missionOptional.ifPresent(Mission::updateFail);
+
+            UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
+            UserTeam lastUserTeam = userTeamRepository.findAllByUserIdOrderByCreatedAtDesc(userId).get(1);
+            Integer teamUsersCount = teamRepository.findById(teamId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM)).getCurrentNum();
+
+            achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, teamUsersCount);
+
+            if(userTeam.getContinueMissionFailedCount() == 1) { // 이전 미션이 실패했었으면
+                User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+                achievementRepository.findByUserId(userId).forEach(achievement ->
+                        achievement.renewalAchievements(user,
+                                AchievementRateDto.fromEntity(
+                                        achievementRateRepository.findByUserId(userId)
+                                )
+                        )
+                );
+
+                userTeam.updateFailCount();
+                userTeam.updateByQuit();
+            }
         }
     }
 
@@ -71,6 +92,26 @@ public class MissionService {
             });
         } else {
             missionOptional.ifPresent(Mission::updateFail);
+
+            UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
+            UserTeam lastUserTeam = userTeamRepository.findAllByUserIdOrderByCreatedAtDesc(userId).get(1);
+            Integer teamUsersCount = teamRepository.findById(teamId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM)).getCurrentNum();
+
+            achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, teamUsersCount);
+
+            if(userTeam.getContinueMissionFailedCount() == 1) { // 이전 미션이 실패했었으면
+                User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+                achievementRepository.findByUserId(userId).forEach(achievement ->
+                        achievement.renewalAchievements(user,
+                                AchievementRateDto.fromEntity(
+                                        achievementRateRepository.findByUserId(userId)
+                                )
+                        )
+                );
+
+                userTeam.updateFailCount();
+                userTeam.updateByQuit();
+            }
         }
     }
 
