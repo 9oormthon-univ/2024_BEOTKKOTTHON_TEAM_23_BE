@@ -2,19 +2,21 @@ package com.beotkkotthon.areyousleeping.service;
 
 import com.beotkkotthon.areyousleeping.domain.Report;
 import com.beotkkotthon.areyousleeping.domain.User;
+import com.beotkkotthon.areyousleeping.domain.UserTeam;
 import com.beotkkotthon.areyousleeping.dto.request.UserReportRequestDto;
 import com.beotkkotthon.areyousleeping.dto.response.UserReportResponseDto;
 import com.beotkkotthon.areyousleeping.exception.CommonException;
 import com.beotkkotthon.areyousleeping.exception.ErrorCode;
 import com.beotkkotthon.areyousleeping.repository.ReportRepository;
 import com.beotkkotthon.areyousleeping.repository.UserRepository;
+import com.beotkkotthon.areyousleeping.repository.UserTeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,9 @@ public class ReportService {
 
     private final UserRepository userRepository;
     private final ReportRepository reportRepository;
+    private final UserTeamService userTeamService;
+    private final UserTeamRepository userTeamRepository;
+
 
     @Transactional
     public UserReportResponseDto reportUser(Long userId, UserReportRequestDto userReportRequestDto){
@@ -59,6 +64,13 @@ public class ReportService {
         if(reports.size()>=10){
             reportedUser.setReported(true);
             userRepository.save(reportedUser);
+
+            // 신고받은 유저가 속한 팀 정보를 조회 -> 팀 퇴출 수행
+            Optional<UserTeam> userTeamOptional = userTeamRepository.findByUserId(reportedUser.getId());
+            if (userTeamOptional.isPresent()) {
+                UserTeam userTeam = userTeamOptional.get();
+                userTeamService.leaveTeam(userTeam.getTeam().getId(), reportedUser.getId());
+            }
         }
 
         return UserReportResponseDto.fromEntity(report);

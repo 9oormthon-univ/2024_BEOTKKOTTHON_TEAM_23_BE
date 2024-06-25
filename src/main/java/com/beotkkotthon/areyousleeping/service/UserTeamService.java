@@ -97,7 +97,6 @@ public class UserTeamService {
         // 변경된 리더 상태 저장 및 팀 인원 수 감소와 팀 삭제 로직을 포함하는 메소드 호출
         removeUserTeamAndUpdateTeamNum(userTeam, team, false); // 더 이상 여기에서 userTeam에 대한 변경을 저장하지 않음
 
-        // userTeam의 team을 null로 설정하고 저장하는 로직은 removeUserTeamAndUpdateTeamNum 메소드 내로 이동되었습니다.
         return userTeam;
     }
 
