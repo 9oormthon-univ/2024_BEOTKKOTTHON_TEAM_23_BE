@@ -27,4 +27,6 @@ public interface UserTeamRepository extends JpaRepository<UserTeam, Long> {
     List<UserTeam> findByTeamIdOrderByIdAsc(Long teamId);
 
     Optional<UserTeam> findByUserId(Long userId);
+
+    Optional<UserTeam> findFirstByUserIdOrderByIdDesc(Long userId);
 }

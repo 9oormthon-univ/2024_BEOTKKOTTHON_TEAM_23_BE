@@ -66,7 +66,7 @@ public class ReportService {
             userRepository.save(reportedUser);
 
             // 신고받은 유저가 속한 팀 정보를 조회 -> 팀 퇴출 수행
-            Optional<UserTeam> userTeamOptional = userTeamRepository.findByUserId(reportedUser.getId());
+            Optional<UserTeam> userTeamOptional = userTeamRepository.findFirstByUserIdOrderByIdDesc(reportedUser.getId());
             if (userTeamOptional.isPresent()) {
                 UserTeam userTeam = userTeamOptional.get();
                 userTeamService.leaveTeam(userTeam.getTeam().getId(), reportedUser.getId());
