@@ -1,7 +1,9 @@
 package com.beotkkotthon.areyousleeping.service;
 
 import com.beotkkotthon.areyousleeping.domain.*;
+import com.beotkkotthon.areyousleeping.dto.response.AchievementRateDto;
 import com.beotkkotthon.areyousleeping.dto.response.TeamMemberInfoDto;
+import com.beotkkotthon.areyousleeping.dto.type.EAchievement;
 import com.beotkkotthon.areyousleeping.exception.CommonException;
 import com.beotkkotthon.areyousleeping.exception.ErrorCode;
 import com.beotkkotthon.areyousleeping.repository.*;
@@ -10,9 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,6 +28,7 @@ public class UserTeamService {
     private final TeamRepository teamRepository;
     private final UserTeamRepository userTeamRepository;
     private final AchievementRepository achievementRepository;
+    private final AchievementRateRepository achievementRateRepository;
     private final AllNightersRepository allNightersRepository;
 
     // 밤샘 참여하기 버튼을 누른 사용자를 팀에 추가하는 메소드
@@ -74,6 +81,20 @@ public class UserTeamService {
             throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
         }
 
+        // 유저가 밤샘 참여중인지 확인
+        if (userTeam.getIsActive()) {
+            // 밤샘 참여중이라면, 밤샘 종료 후 팀 나가기
+            UserTeam lastUserTeam = userTeamRepository.findAllByUserIdOrderByCreatedAtDesc(userId).get(1);
+            achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, team.getCurrentNum());
+
+            User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+            AchievementRateDto achievementRateDto = AchievementRateDto.fromEntity(achievementRateRepository.findByUserId(userId));
+            achievementRepository.findByUserId(userId).forEach(achievement ->
+                    achievement.renewalAchievements(user, achievementRateDto)
+            );
+            userTeam.updateByQuit();
+        }
+
         Boolean isLeader = userTeam.getIsLeader(); // 팀을 떠나는 사용자가 리더인지 확인
 
         if (isLeader){
@@ -95,7 +116,7 @@ public class UserTeamService {
         }
 
         // 변경된 리더 상태 저장 및 팀 인원 수 감소와 팀 삭제 로직을 포함하는 메소드 호출
-        removeUserTeamAndUpdateTeamNum(userTeam, team, false); // 더 이상 여기에서 userTeam에 대한 변경을 저장하지 않음
+        removeUserTeamAndUpdateTeamNum(userTeam, team, false, userId); // 더 이상 여기에서 userTeam에 대한 변경을 저장하지 않음
 
         return userTeam;
     }
@@ -118,6 +139,19 @@ public class UserTeamService {
                         .build());
             } else {
                 userTeam.updateByEnd(isActive); // 밤샘 종료
+                UserTeam lastUserTeam = userTeamRepository.findAllByUserIdOrderByCreatedAtDesc(userId).get(1);
+                Integer teamUsersCount = teamRepository.findById(teamId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM)).getCurrentNum();
+
+                achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, teamUsersCount);
+
+                User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+                achievementRepository.findByUserId(userId).forEach(achievement ->
+                        achievement.renewalAchievements(user,
+                                AchievementRateDto.fromEntity(
+                                        achievementRateRepository.findByUserId(userId)
+                                )
+                        )
+                );
                 AllNighters allNighters = allNightersRepository.findByUserTeamId(userTeam.getId());
                 allNighters.updateByEnd(); // 밤샘 종료 시간 업데이트(끝 시간 - 시작시간 = 밤샘 시간: Duration)
                 allNightersRepository.save(allNighters);
@@ -199,16 +233,25 @@ public class UserTeamService {
             throw new CommonException(ErrorCode.BAD_REQUEST_PARAMETER);
         }
 
-        removeUserTeamAndUpdateTeamNum(userTeam, team, true);
+        removeUserTeamAndUpdateTeamNum(userTeam, team, true, userId);
     }
 
 
     @Transactional
-    public void removeUserTeamAndUpdateTeamNum(UserTeam userTeam, Team team, boolean isSaveUserTeam){
+    public void removeUserTeamAndUpdateTeamNum(UserTeam userTeam, Team team, boolean isSaveUserTeam, Long userId){
+        // 유저가 밤샘 참여중인지 확인
+        if (userTeam.getIsActive()) {
+            // 밤샘 참여중이라면, 밤샘 종료 후 팀 나가기
+            UserTeam lastUserTeam = userTeamRepository.findAllByUserIdOrderByCreatedAtDesc(userId).get(1);
+            achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, team.getCurrentNum());
 
-        if(userTeam.getIsActive()){ // 밤샘 중이라면 밤샘 종료 업데이트 로직까지 수행
+            User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+            AchievementRateDto achievementRateDto = AchievementRateDto.fromEntity(achievementRateRepository.findByUserId(userId));
+            achievementRepository.findByUserId(userId).forEach(achievement ->
+                    achievement.renewalAchievements(user, achievementRateDto)
+            );
 
-            userTeam.updateByQuit(); // userTeam의 team을 null로 설정
+            userTeam.updateByQuit();
 
             if (userTeam.getIsLeader()) { // 사용자가 리더인 경우 isLeader 상태 업데이트
                 userTeam.changeLeader(false); // 방장 상태를 false로 변경
@@ -241,6 +284,4 @@ public class UserTeamService {
         }
 
     }
-
-
 }
