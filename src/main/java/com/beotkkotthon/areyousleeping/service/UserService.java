@@ -36,7 +36,7 @@ public class UserService {
         String title = (latestAchievement != null) ? latestAchievement.getTitle() : null;
 
         // 유저 팀 정보 조회
-        Optional<UserTeam> userTeamOptional = userTeamRepository.findByUserId(userId);
+        Optional<UserTeam> userTeamOptional = userTeamRepository.findFirstByUserIdOrderByIdDesc(userId);
         Boolean isInTeam = userTeamOptional.isPresent() && userTeamOptional.get().getTeam() != null;
         Long teamId = isInTeam ? userTeamOptional.get().getTeam().getId() : null;
 
