@@ -56,6 +56,9 @@ public class User {
     @Column(name = "refresh_token")
     private String refreshToken;
 
+    @Column(name = "is_blocked", nullable = false)
+    private boolean isBlocked;
+
     @Builder
     public User(String serialId, String password, EProvider provider, ERole role) {
         this.serialId = serialId;
@@ -65,6 +68,7 @@ public class User {
         this.createdAt = LocalDateTime.now();
         this.profileImageUrl = Constants.DEFAULT_IMAGE;
         this.isLogin = false;
+        this.isBlocked = false;
     }
 
     public void register(String nickname) {
@@ -98,6 +102,10 @@ public class User {
         }
     }
 
+    public void setReported(boolean isBlocked){
+        this.isBlocked = isBlocked;
+    }
+
     public static User signUp(AuthSignUpDto authSignUpDto, String encodedPassword) {
         return User.builder()
                 .serialId(authSignUpDto.serialId())
@@ -114,4 +122,5 @@ public class User {
                 .role(ERole.USER)
                 .build();
     }
+
 }

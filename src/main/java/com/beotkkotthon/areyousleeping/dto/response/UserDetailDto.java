@@ -27,16 +27,30 @@ public record UserDetailDto(
 
         @JsonProperty("profile_image_url") @Schema(description = "프로필 이미지 URL", example = "https://emodiary.s3.ap-northeast-2.amazonaws.com/profile/1.png")
         @NotNull(message = "프로필 이미지가 없습니다.")
-        String profileImageUrl
+        String profileImageUrl,
+
+        @Schema(description = "10번 이상 신고당했는지 여부", example = "true")
+        @NotNull(message = "신고 여부가 없습니다.")
+        Boolean isBlocked,
+
+        @Schema(description="팀에 속해있는지 여부", example="true")
+        @NotNull(message = "팀에 속해있는지 여부가 없습니다.")
+        Boolean isInTeam,
+
+        @Schema(description="팀 ID", example="1")
+        Long teamId
 
 ) {
-        public static UserDetailDto fromEntity(User user, String title) {
+        public static UserDetailDto fromEntity(User user, String title, Boolean isInTeam, Long teamId) {
             return UserDetailDto.builder()
                     .id(user.getId())
                     .nickname(user.getNickname())
                     .provider(user.getProvider())
                     .AchievementTitle(title)
                     .profileImageUrl(user.getProfileImageUrl())
+                    .isInTeam(isInTeam)
+                    .isBlocked(user.isBlocked())
+                    .teamId(teamId)
                     .build();
         }
 }

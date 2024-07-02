@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -25,8 +27,8 @@ public class Report {
 
     //신고 당한 사람
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reportee_id", nullable = false)
-    private User reportee;
+    @JoinColumn(name = "reported_id", nullable = false)
+    private User reportedUser;
 
     @Column(name = "content", nullable = true)
     private String reportContent = null;
@@ -35,9 +37,9 @@ public class Report {
     private LocalDateTime createdAt;
 
     @Builder
-    public Report(User reporter, User reportee, String reportContent,LocalDateTime createdAt){
+    public Report(User reporter, User reportedUser, String reportContent,LocalDateTime createdAt){
         this.reporter = reporter;
-        this.reportee = reportee;
+        this.reportedUser = reportedUser;
         this.reportContent = reportContent;
         this.createdAt = createdAt;
     }
