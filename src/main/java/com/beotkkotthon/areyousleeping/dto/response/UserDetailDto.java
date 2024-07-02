@@ -29,9 +29,9 @@ public record UserDetailDto(
         @NotNull(message = "프로필 이미지가 없습니다.")
         String profileImageUrl,
 
-        @Schema(description = "신고 여부", example = "true")
+        @Schema(description = "10번 이상 신고당했는지 여부", example = "true")
         @NotNull(message = "신고 여부가 없습니다.")
-        Boolean isReported,
+        Boolean isBlocked,
 
         @Schema(description="팀에 속해있는지 여부", example="true")
         @NotNull(message = "팀에 속해있는지 여부가 없습니다.")
@@ -49,7 +49,7 @@ public record UserDetailDto(
                     .AchievementTitle(title)
                     .profileImageUrl(user.getProfileImageUrl())
                     .isInTeam(isInTeam)
-                    .isReported(user.isReported())
+                    .isBlocked(user.isBlocked())
                     .teamId(teamId)
                     .build();
         }

@@ -21,7 +21,7 @@ public record UserReportResponseDto(
         String reporterNickname,
 
         @Schema(description = "신고자 신고 여부", example = "true")
-        Boolean reporterIsReported,
+        Boolean reporterIsBlocked,
 
         @Schema(description = "신고된 유저 ID", example = "2")
         @NotNull(message = "신고된 유저 ID가 없습니다.")
@@ -32,7 +32,7 @@ public record UserReportResponseDto(
         String reportedUserNickname,
 
         @Schema(description = "신고된 유저 신고 여부", example = "true")
-        Boolean reportedUserIsReported,
+        Boolean reportedUserIsBlocked,
 
         @Schema(description = "신고 내용", example = "부적절한 언행")
         @NotNull(message = "신고 내용이 없습니다.")
@@ -43,10 +43,10 @@ public record UserReportResponseDto(
                 .reportId(report.getId())
                 .reporterUserId(report.getReporter().getId())
                 .reporterNickname(report.getReporter().getNickname())
-                .reporterIsReported(report.getReporter().isReported())
+                .reporterIsBlocked(report.getReporter().isBlocked())
                 .reportedUserId(report.getReportedUser().getId())
                 .reportedUserNickname(report.getReportedUser().getNickname())
-                .reportedUserIsReported(report.getReportedUser().isReported())
+                .reportedUserIsBlocked(report.getReportedUser().isBlocked())
                 .reportContent(report.getReportContent())
                 .build();
     }

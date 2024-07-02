@@ -59,7 +59,7 @@ public class ReportService {
         reportRepository.save(report);
 
 
-        // 유저의 신고를 10명이상에게 받을 시 user의 isReported 필드를 true로 설정
+        // 유저의 신고를 10명이상에게 받을 시 user의 isBlocked 필드를 true로 설정
         List<Report> reports = reportRepository.findByReportedUser(reportedUser);
         if(reports.size()>=10){
             reportedUser.setReported(true);
