@@ -21,15 +21,20 @@ public class LikeService {
     private final PostRepository postRepository;
 
     public String toggleLike(Long userId, Long postId) {
-        likeRepository.findByPostIdAndUserId(postId, userId)
-                .ifPresentOrElse(likeRepository::delete,
-                        () -> likeRepository.save(Like.builder()
-                                    .user(userRepository.findById(userId)
-                                            .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER)))
-                                    .post(postRepository.findById(postId)
-                                            .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_POST)))
-                                    .build())
-                );
+        return likeRepository.findByPostIdAndUserId(postId, userId)
+                .map(like -> {
+                    likeRepository.delete(like);
+                    return "Like removed";
+                })
+                .orElseGet(() -> {
+                    likeRepository.save(Like.builder()
+                            .user(userRepository.findById(userId)
+                                    .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER)))
+                            .post(postRepository.findById(postId)
+                                    .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_POST)))
+                            .build());
+                    return "Like added";
+                });
     }
     public List<PostResponseDto> getLike(Long userId) {
          return likeRepository.findAllByUserId(userId).stream()
