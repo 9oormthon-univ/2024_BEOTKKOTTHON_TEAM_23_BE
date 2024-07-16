@@ -1,13 +1,16 @@
 package com.beotkkotthon.areyousleeping.service;
 
+import com.beotkkotthon.areyousleeping.domain.Comment;
 import com.beotkkotthon.areyousleeping.domain.Post;
 import com.beotkkotthon.areyousleeping.domain.User;
 import com.beotkkotthon.areyousleeping.domain.specification.PostSpecifications;
 import com.beotkkotthon.areyousleeping.dto.request.PostCreateDto;
 import com.beotkkotthon.areyousleeping.dto.request.PostUpdateDto;
+import com.beotkkotthon.areyousleeping.dto.response.PostDetailResponseDto;
 import com.beotkkotthon.areyousleeping.dto.response.PostResponseDto;
 import com.beotkkotthon.areyousleeping.exception.CommonException;
 import com.beotkkotthon.areyousleeping.exception.ErrorCode;
+import com.beotkkotthon.areyousleeping.repository.CommentRepository;
 import com.beotkkotthon.areyousleeping.repository.PostRepository;
 import com.beotkkotthon.areyousleeping.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -27,11 +31,12 @@ import java.util.stream.Collectors;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
-    public Post createPost(PostCreateDto postCreateDto) {
+    public void createPost(PostCreateDto postCreateDto) {
         User user = userRepository.findById(postCreateDto.userId())
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
-        return postRepository.save(
+        postRepository.save(
                 Post.builder()
                         .postTitle(postCreateDto.title())
                         .postContent(postCreateDto.content())
@@ -55,6 +60,12 @@ public class PostService {
 
         return result;
     }
+    public PostDetailResponseDto getPostDetail(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_POST));
+        List<Comment> comments = commentRepository.findAllByPostId(postId);
+        return PostDetailResponseDto.fromEntity(post, comments);
+    }
 
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId)
@@ -62,11 +73,11 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    public Post updatePost(Long postId, PostUpdateDto postUpdateDto) {
+    public void updatePost(Long postId, PostUpdateDto postUpdateDto) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_POST));
         post.update(postUpdateDto.title(), postUpdateDto.content());
 
-        return postRepository.save(post);
+        postRepository.save(post);
     }
 }
