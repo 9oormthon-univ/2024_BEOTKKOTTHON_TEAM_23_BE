@@ -18,7 +18,7 @@ public class Post {
     @Column(name="post_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -40,6 +40,7 @@ public class Post {
         this.user = user;
         this.postContent = postContent;
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void update(String postTitle, String postContent) {
