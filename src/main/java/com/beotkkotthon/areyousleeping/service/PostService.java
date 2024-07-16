@@ -11,6 +11,7 @@ import com.beotkkotthon.areyousleeping.dto.response.PostResponseDto;
 import com.beotkkotthon.areyousleeping.exception.CommonException;
 import com.beotkkotthon.areyousleeping.exception.ErrorCode;
 import com.beotkkotthon.areyousleeping.repository.CommentRepository;
+import com.beotkkotthon.areyousleeping.repository.LikeRepository;
 import com.beotkkotthon.areyousleeping.repository.PostRepository;
 import com.beotkkotthon.areyousleeping.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final LikeRepository likeRepository;
 
     public void createPost(PostCreateDto postCreateDto) {
         User user = userRepository.findById(postCreateDto.userId())
@@ -55,8 +57,13 @@ public class PostService {
         Map<String, Object> result = new HashMap<>();
         result.put("hasNext", posts.hasNext());
         result.put("posts", posts.getContent().stream()
-                .map(PostResponseDto::fromEntity)
-                .collect(Collectors.toList()));
+
+                        .map(post -> {
+                            Integer likeCount = likeRepository.countByPost(post);
+                            return PostResponseDto.fromEntity(post, likeCount);
+                        }
+                                .toList());
+
 
         return result;
     }
