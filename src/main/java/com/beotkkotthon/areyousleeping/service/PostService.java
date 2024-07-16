@@ -57,12 +57,11 @@ public class PostService {
         Map<String, Object> result = new HashMap<>();
         result.put("hasNext", posts.hasNext());
         result.put("posts", posts.getContent().stream()
-
                         .map(post -> {
                             Integer likeCount = likeRepository.countByPost(post);
                             return PostResponseDto.fromEntity(post, likeCount);
-                        }
-                                .toList());
+                        })
+                        .toList());
 
 
         return result;
@@ -71,7 +70,8 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_POST));
         List<Comment> comments = commentRepository.findAllByPostId(postId);
-        return PostDetailResponseDto.fromEntity(post, comments);
+        Integer likeCount = likeRepository.countByPost(post);
+        return PostDetailResponseDto.fromEntity(post, comments, likeCount);
     }
 
     public void deletePost(Long postId) {

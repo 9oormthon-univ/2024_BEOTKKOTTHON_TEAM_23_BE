@@ -36,10 +36,13 @@ public class LikeService {
                     return "Like added";
                 });
     }
-    public List<PostResponseDto> getLike(Long userId) {
+    public List<PostResponseDto> getLikedPost(Long userId) {
          return likeRepository.findAllByUserId(userId).stream()
                  .map(Like::getPost)
-                 .map(PostResponseDto::fromEntity)
+                 .map(post -> {
+                     Integer likeCount = likeRepository.countByPost(post);
+                        return PostResponseDto.fromEntity(post, likeCount);
+                 })
                  .toList();
     }
 }

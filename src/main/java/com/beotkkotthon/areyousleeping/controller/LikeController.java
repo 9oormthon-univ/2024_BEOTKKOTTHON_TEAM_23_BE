@@ -17,6 +17,6 @@ public class LikeController {
     }
     @GetMapping("/api/v1/like/posts")
     public ResponseDto<?> getLikePost(Long userId) {
-        return ResponseDto.ok(likeService.getLike(userId));
+        return ResponseDto.ok(likeService.getLikedPost(userId));
     }
 }
