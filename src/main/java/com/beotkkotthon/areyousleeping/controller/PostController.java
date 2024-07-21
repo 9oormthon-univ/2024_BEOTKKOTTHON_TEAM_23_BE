@@ -22,9 +22,14 @@ public class PostController {
             @RequestParam(value = "keyword", required = false) String keyword) {
         return ResponseDto.ok(postService.getPost(page, size, keyword));
     }
+    @GetMapping("/{postId}")
+    public ResponseDto<?> getPostDetail(@PathVariable Long postId) {
+        return ResponseDto.ok(postService.getPostDetail(postId));
+    }
     @PostMapping("")
     public ResponseDto<?> createPost(@RequestBody PostCreateDto postCreateDto) {
-        return ResponseDto.created(postService.createPost(postCreateDto));
+        postService.createPost(postCreateDto);
+        return ResponseDto.created(null);
     }
 
     @DeleteMapping("/{postId}")
@@ -35,6 +40,7 @@ public class PostController {
 
     @PatchMapping("/{postId}")
     public ResponseDto<?> updatePost(@PathVariable Long postId, @RequestBody PostUpdateDto postUpdateDto) {
-        return ResponseDto.ok(postService.updatePost(postId, postUpdateDto));
+        postService.updatePost(postId, postUpdateDto);
+        return ResponseDto.ok(null);
     }
 }

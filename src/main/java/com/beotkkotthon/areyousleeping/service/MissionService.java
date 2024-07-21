@@ -62,20 +62,18 @@ public class MissionService {
             UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
             UserTeam lastUserTeam = userTeamRepository.findAllByUserIdOrderByCreatedAtDesc(userId).get(1);
             Integer teamUsersCount = teamRepository.findById(teamId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM)).getCurrentNum();
-
-            achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, teamUsersCount);
+            userTeam.updateFailCount(); // 해당 userTeam에서의 미션 실패 회수 추가
 
             if(userTeam.getContinueMissionFailedCount() == 1) { // 이전 미션이 실패했었으면
+                achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, teamUsersCount); // achievementRate 업데이트
+
                 User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+                AchievementRate updatedAchievementRate = achievementRateRepository.findByUserId(userId); // 업데이트가 반영된 achievementRate 다시조회
                 achievementRepository.findByUserId(userId).forEach(achievement ->
-                        achievement.renewalAchievements(user,
-                                AchievementRateDto.fromEntity(
-                                        achievementRateRepository.findByUserId(userId)
-                                )
+                        achievement.renewalAchievements(user, // 칭호 갱신
+                                AchievementRateDto.fromEntity(updatedAchievementRate)
                         )
                 );
-
-                userTeam.updateFailCount();
                 userTeam.updateByQuit();
             }
         }
@@ -96,20 +94,18 @@ public class MissionService {
             UserTeam userTeam = userTeamRepository.findByUserIdAndTeamId(userId, teamId);
             UserTeam lastUserTeam = userTeamRepository.findAllByUserIdOrderByCreatedAtDesc(userId).get(1);
             Integer teamUsersCount = teamRepository.findById(teamId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_TEAM)).getCurrentNum();
-
-            achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, teamUsersCount);
+            userTeam.updateFailCount(); // 해당 userTeam에서의 미션 실패 회수 추가
 
             if(userTeam.getContinueMissionFailedCount() == 1) { // 이전 미션이 실패했었으면
+                achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, teamUsersCount); // achievementRate 업데이트
+
                 User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
+                AchievementRate updatedAchievementRate = achievementRateRepository.findByUserId(userId); // 업데이트가 반영된 achievementRate 다시조회
                 achievementRepository.findByUserId(userId).forEach(achievement ->
-                        achievement.renewalAchievements(user,
-                                AchievementRateDto.fromEntity(
-                                        achievementRateRepository.findByUserId(userId)
-                                )
+                        achievement.renewalAchievements(user, // 칭호 갱신
+                                AchievementRateDto.fromEntity(updatedAchievementRate)
                         )
                 );
-
-                userTeam.updateFailCount();
                 userTeam.updateByQuit();
             }
         }

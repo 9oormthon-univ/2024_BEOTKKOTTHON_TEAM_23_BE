@@ -81,20 +81,6 @@ public class UserTeamService {
             throw new CommonException(ErrorCode.NOT_MATCH_USER_TEAM);
         }
 
-        // 유저가 밤샘 참여중인지 확인
-        if (userTeam.getIsActive()) {
-            // 밤샘 참여중이라면, 밤샘 종료 후 팀 나가기
-            UserTeam lastUserTeam = userTeamRepository.findAllByUserIdOrderByCreatedAtDesc(userId).get(1);
-            achievementRateRepository.findByUserId(userId).updateAchievementRate(userTeam, lastUserTeam, team.getCurrentNum());
-
-            User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
-            AchievementRateDto achievementRateDto = AchievementRateDto.fromEntity(achievementRateRepository.findByUserId(userId));
-            achievementRepository.findByUserId(userId).forEach(achievement ->
-                    achievement.renewalAchievements(user, achievementRateDto)
-            );
-            userTeam.updateByQuit();
-        }
-
         Boolean isLeader = userTeam.getIsLeader(); // 팀을 떠나는 사용자가 리더인지 확인
 
         if (isLeader){
@@ -253,20 +239,12 @@ public class UserTeamService {
 
             userTeam.updateByQuit();
 
-            if (userTeam.getIsLeader()) { // 사용자가 리더인 경우 isLeader 상태 업데이트
-                userTeam.changeLeader(false); // 방장 상태를 false로 변경
-            }
-
             AllNighters allNighters = allNightersRepository.findByUserTeamId(userTeam.getId());
             allNighters.updateByEnd(); // 밤샘 종료 시간 업데이트
             allNightersRepository.save(allNighters);
 
         } else { // 밤샘중이 아니라면 그냥 userTeam의 team을 null로 설정하고 끝
             userTeam.updateByQuit();
-
-            if (userTeam.getIsLeader()) { // 사용자가 리더인 경우 isLeader 상태 업데이트
-                userTeam.changeLeader(false); // 방장 상태를 false로 변경
-            }
         }
 
         if (isSaveUserTeam) {

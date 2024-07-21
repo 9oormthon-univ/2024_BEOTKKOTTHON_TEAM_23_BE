@@ -32,16 +32,16 @@ public class CommentService {
         Page<Comment> comments = commentRepository.findAllByPostId(postId, pageable);
 
         return comments.getContent().stream()
-                .map(CommentResponseDto::fromEntity)
+                .map(comment -> CommentResponseDto.fromEntity(comment, comment.getUser()))
                 .collect(Collectors.toList());
     }
 
-    public Comment createComment(CommentCreateDto commentCreateDto) {
+    public void createComment(CommentCreateDto commentCreateDto) {
         User user = userRepository.findById(commentCreateDto.userId())
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
         Post post = postRepository.findById(commentCreateDto.postId())
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_POST));
-        return commentRepository.save(
+        commentRepository.save(
                 Comment.builder()
                         .user(user)
                         .post(post)
@@ -53,12 +53,12 @@ public class CommentService {
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_COMMENT));
         commentRepository.delete(comment);
     }
-    public Comment updateComment(Long commentId, CommentCreateDto commentCreateDto) {
+    public void updateComment(Long commentId, CommentCreateDto commentCreateDto) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_COMMENT));
         comment.update(
                 commentCreateDto.commentContent()
         );
-        return commentRepository.save(comment);
+        commentRepository.save(comment);
     }
 }

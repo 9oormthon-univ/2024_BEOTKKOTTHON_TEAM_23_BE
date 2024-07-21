@@ -24,7 +24,8 @@ public class CommentController {
     }
     @PostMapping("")
     public ResponseDto<?> createComment(@RequestBody CommentCreateDto commentCreateDto) {
-        return ResponseDto.created(commentService.createComment(commentCreateDto));
+        commentService.createComment(commentCreateDto);
+        return ResponseDto.created(null);
     }
     @DeleteMapping("/{commentId}")
     public ResponseDto<?> deleteComment(@PathVariable Long commentId) {
@@ -33,6 +34,7 @@ public class CommentController {
     }
     @PatchMapping("/{commentId}")
     public ResponseDto<?> updateComment(@PathVariable Long commentId, @RequestBody CommentCreateDto commentCreateDto) {
-        return ResponseDto.ok(commentService.updateComment(commentId, commentCreateDto));
+        commentService.updateComment(commentId, commentCreateDto);
+        return ResponseDto.ok(null);
     }
 }
