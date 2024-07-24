@@ -1,5 +1,6 @@
 package com.beotkkotthon.areyousleeping.controller;
 
+import com.beotkkotthon.areyousleeping.annotation.UserId;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
 import com.beotkkotthon.areyousleeping.dto.request.PostCreateDto;
 import com.beotkkotthon.areyousleeping.dto.request.PostUpdateDto;
@@ -7,6 +8,9 @@ import com.beotkkotthon.areyousleeping.service.PostService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,8 +31,11 @@ public class PostController {
         return ResponseDto.ok(postService.getPostDetail(postId));
     }
     @PostMapping("")
-    public ResponseDto<?> createPost(@RequestBody PostCreateDto postCreateDto) {
-        postService.createPost(postCreateDto);
+    public ResponseDto<?> createPost(
+            @RequestPart("post") PostCreateDto postCreateDto,
+            @RequestPart(value = "photos", required = false) List<MultipartFile> photos,
+            @UserId Long userId) {
+        postService.createPost(postCreateDto, photos, userId);
         return ResponseDto.created(null);
     }
 
@@ -39,7 +46,16 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseDto<?> updatePost(@PathVariable Long postId, @RequestBody PostUpdateDto postUpdateDto) {
+    public ResponseDto<?> updatePost(
+            @PathVariable Long postId,
+            @RequestPart("post") PostUpdateDto postUpdateDto,
+            @RequestPart(value = "photos", required = false) List<MultipartFile> photos) {
+        if(!postUpdateDto.photoIdsToDelete().isEmpty()) {
+            postUpdateDto.photoIdsToDelete().forEach(postService::deletePostImage);
+        }
+        if(photos != null) {
+            postService.addPostImage(postId, photos);
+        }
         postService.updatePost(postId, postUpdateDto);
         return ResponseDto.ok(null);
     }

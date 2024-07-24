@@ -1,5 +1,6 @@
 package com.beotkkotthon.areyousleeping.controller;
 
+import com.beotkkotthon.areyousleeping.annotation.UserId;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
 import com.beotkkotthon.areyousleeping.service.LikeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,11 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class LikeController {
     private final LikeService likeService;
     @PostMapping("")
-    public ResponseDto<?> toggleLike(Long userId, Long postId) {
+    public ResponseDto<?> toggleLike(@UserId Long userId, Long postId) {
         return ResponseDto.ok(likeService.toggleLike(userId, postId));
     }
     @GetMapping("/post")
-    public ResponseDto<?> getLikePost(Long userId) {
+    public ResponseDto<?> getLikePost(@UserId Long userId) {
         return ResponseDto.ok(likeService.getLikedPost(userId));
     }
 }

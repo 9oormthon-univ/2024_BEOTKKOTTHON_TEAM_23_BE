@@ -18,9 +18,10 @@ public record PostDetailResponseDto(
         String profileImageUrl,
         String createdAt,
         String updatedAt,
-        List<CommentResponseDto> commentsDto
+        List<CommentResponseDto> commentsDto,
+        List<String> postImageUrl
 ) {
-    public static PostDetailResponseDto fromEntity(Post post, List<Comment> comments, Integer likeCount) {
+    public static PostDetailResponseDto fromEntity(Post post, List<Comment> comments, Integer likeCount, List<String> postImageUrl) {
         return PostDetailResponseDto.builder()
                 .postId(post.getId())
                 .postTitle(post.getPostTitle())
@@ -31,7 +32,8 @@ public record PostDetailResponseDto(
                 .profileImageUrl(post.getUser().getProfileImageUrl())
                 .createdAt(post.getCreatedAt().toString())
                 .updatedAt(post.getUpdatedAt().toString())
-                .commentsDto(CommentResponseDto.fromEntities(comments, List.of(post.getUser())))
+                .commentsDto(CommentResponseDto.fromEntities(comments))
+                .postImageUrl(postImageUrl)
                 .build();
     }
 }

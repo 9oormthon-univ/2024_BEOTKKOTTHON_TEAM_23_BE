@@ -91,4 +91,30 @@ public class ImageUtil {
 
         return bucketUrl + fileName;
     }
+
+    public String uploadPostImageFile(MultipartFile file, Long postId) {
+        final String contentType = file.getContentType();
+        assert contentType != null;
+        String type = "." + contentType.substring(contentType.indexOf("/") + 1);
+
+        if (!contentType.startsWith(IMAGE_CONTENT_PREFIX)) {
+            throw new CommonException(ErrorCode.MISSING_REQUEST_PARAMETER);
+        }
+
+        String uuid = UUID.randomUUID().toString();
+        String fileName = "post_" + postId + "/" + uuid + type;
+
+        try {
+            amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), null);
+        } catch (IOException e) {
+            throw new CommonException(ErrorCode.UPLOAD_FILE_ERROR);
+        }
+
+        return bucketUrl + fileName;
+    }
+
+    public void deletePostImageFile(String imageUrl) {
+        String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+        amazonS3Client.deleteObject(bucketName, fileName);
+    }
 }

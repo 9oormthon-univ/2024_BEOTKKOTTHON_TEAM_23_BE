@@ -6,8 +6,6 @@ public record CommentCreateDto(
         @JsonProperty(value = "content", required = true)
         String commentContent,
         @JsonProperty(value = "postId", required = true)
-        Long postId,
-        @JsonProperty(value = "userId", required = true)
-        Long userId
+        Long postId
 ) {
 }
