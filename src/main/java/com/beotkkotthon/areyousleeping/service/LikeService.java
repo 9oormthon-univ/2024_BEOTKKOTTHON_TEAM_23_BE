@@ -9,6 +9,7 @@ import com.beotkkotthon.areyousleeping.repository.PostRepository;
 import com.beotkkotthon.areyousleeping.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -20,6 +21,7 @@ public class LikeService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
+    @Transactional
     public String toggleLike(Long userId, Long postId) {
         return likeRepository.findByPostIdAndUserId(postId, userId)
                 .map(like -> {

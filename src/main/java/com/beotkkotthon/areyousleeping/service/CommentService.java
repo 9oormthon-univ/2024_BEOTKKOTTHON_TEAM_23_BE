@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,9 +36,9 @@ public class CommentService {
                 .map(comment -> CommentResponseDto.fromEntity(comment, comment.getUser()))
                 .collect(Collectors.toList());
     }
-
-    public void createComment(CommentCreateDto commentCreateDto) {
-        User user = userRepository.findById(commentCreateDto.userId())
+    @Transactional
+    public void createComment(CommentCreateDto commentCreateDto, Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_USER));
         Post post = postRepository.findById(commentCreateDto.postId())
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_POST));
@@ -48,11 +49,13 @@ public class CommentService {
                         .commentContent(commentCreateDto.commentContent())
                         .build());
     }
+    @Transactional
     public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_COMMENT));
         commentRepository.delete(comment);
     }
+    @Transactional
     public void updateComment(Long commentId, CommentCreateDto commentCreateDto) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommonException(ErrorCode.NOT_FOUND_COMMENT));
