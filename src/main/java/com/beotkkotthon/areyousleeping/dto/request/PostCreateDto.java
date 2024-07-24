@@ -8,8 +8,6 @@ public record PostCreateDto(
         @JsonProperty("title")
         String title,
         @JsonProperty("content")
-        String content,
-        @JsonProperty("user_id")
-        Long userId
+        String content
 ) {
 }

@@ -1,5 +1,6 @@
 package com.beotkkotthon.areyousleeping.controller;
 
+import com.beotkkotthon.areyousleeping.annotation.UserId;
 import com.beotkkotthon.areyousleeping.dto.global.ResponseDto;
 import com.beotkkotthon.areyousleeping.dto.request.CommentCreateDto;
 import com.beotkkotthon.areyousleeping.service.CommentService;
@@ -23,8 +24,8 @@ public class CommentController {
         return ResponseDto.ok(commentService.getComment(page, size, postId));
     }
     @PostMapping("")
-    public ResponseDto<?> createComment(@RequestBody CommentCreateDto commentCreateDto) {
-        commentService.createComment(commentCreateDto);
+    public ResponseDto<?> createComment(@RequestBody CommentCreateDto commentCreateDto, @UserId Long userId) {
+        commentService.createComment(commentCreateDto, userId);
         return ResponseDto.created(null);
     }
     @DeleteMapping("/{commentId}")
