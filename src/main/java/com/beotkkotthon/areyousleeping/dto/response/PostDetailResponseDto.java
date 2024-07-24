@@ -32,7 +32,7 @@ public record PostDetailResponseDto(
                 .profileImageUrl(post.getUser().getProfileImageUrl())
                 .createdAt(post.getCreatedAt().toString())
                 .updatedAt(post.getUpdatedAt().toString())
-                .commentsDto(CommentResponseDto.fromEntities(comments, List.of(post.getUser())))
+                .commentsDto(CommentResponseDto.fromEntities(comments))
                 .postImageUrl(postImageUrl)
                 .build();
     }

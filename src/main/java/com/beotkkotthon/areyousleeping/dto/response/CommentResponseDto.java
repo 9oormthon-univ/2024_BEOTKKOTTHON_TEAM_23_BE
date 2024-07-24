@@ -16,20 +16,20 @@ public record CommentResponseDto(
         String createdAt,
         String updatedAt
 ) {
-    public static CommentResponseDto fromEntity(Comment comment, User user) {
+    public static CommentResponseDto fromEntity(Comment comment) {
         return CommentResponseDto.builder()
                 .commentId(comment.getId())
-                .userId(user.getId())
-                .nickname(user.getNickname())
-                .profileImageUrl(user.getProfileImageUrl())
+                .userId(comment.getUser().getId())
+                .nickname(comment.getUser().getNickname())
+                .profileImageUrl(comment.getUser().getProfileImageUrl())
                 .commentContent(comment.getCommentContent())
                 .createdAt(comment.getCreatedAt().toString())
                 .updatedAt(comment.getUpdatedAt().toString())
                 .build();
     }
-    public static List<CommentResponseDto> fromEntities(List<Comment> comments, List<User> users) {
+    public static List<CommentResponseDto> fromEntities(List<Comment> comments) {
         return comments.stream()
-                .map(comment -> CommentResponseDto.fromEntity(comment, users.get(comments.indexOf(comment))))
+                .map(CommentResponseDto::fromEntity)
                 .toList();
     }
 

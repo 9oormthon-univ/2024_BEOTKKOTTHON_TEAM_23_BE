@@ -33,7 +33,7 @@ public class CommentService {
         Page<Comment> comments = commentRepository.findAllByPostId(postId, pageable);
 
         return comments.getContent().stream()
-                .map(comment -> CommentResponseDto.fromEntity(comment, comment.getUser()))
+                .map(CommentResponseDto::fromEntity)
                 .collect(Collectors.toList());
     }
     @Transactional
